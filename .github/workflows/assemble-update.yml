@@ -1,0 +1,64 @@
+name: Assemble TopCop1000 Update ZIP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/assemble-update.yml"
+      - "update_parts/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository laden
+        uses: actions/checkout@v4
+
+      - name: Update-ZIP aus Textteilen zusammensetzen
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+
+          parts = sorted(Path('update_parts').glob('part*.txt'))
+          if not parts:
+              raise SystemExit('Keine update_parts gefunden')
+
+          payload = ''.join(p.read_text(encoding='utf-8') for p in parts)
+          payload = ''.join(payload.split())
+          data = base64.b64decode(payload, validate=True)
+          Path('TopCop1000_latest.zip').write_bytes(data)
+          print('Teile:', len(parts))
+          print('ZIP-Groesse:', len(data))
+          PY
+
+      - name: ZIP und Version prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -t TopCop1000_latest.zip
+          unzip -p TopCop1000_latest.zip plugin.video.topcop1000/addon.xml | grep -F 'version="0.9.19.0"'
+          unzip -p TopCop1000_latest.zip plugin.video.topcop1000/resources/tools/TopCop1000_Installer.py | grep -F 'https://raw.githubusercontent.com/topcop100/TopCop1000/main/TopCop1000_latest.zip'
+          printf 'v0.9.19.0\n' > VERSION.txt
+          sha256sum TopCop1000_latest.zip > UPDATE_SHA256.txt
+
+      - name: Vollständige Update-Datei veröffentlichen
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add TopCop1000_latest.zip VERSION.txt UPDATE_SHA256.txt
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen notwendig."
+          else
+            git commit -m "Publish assembled TopCop1000 0.9.19.0 update ZIP"
+            git push
+          fi
