@@ -1,0 +1,9 @@
+{
+  "channel": "TopCop1000-v2",
+  "level": 48,
+  "version": "0.9.21.1-build48",
+  "status": "current",
+  "parts": [],
+  "sha256": "",
+  "notes": "Build48 Basisstand. Der V2-Updater ist erreichbar; spaetere Python/UI/Launcher-Patches werden als gepruefte Teile verteilt."
+}
