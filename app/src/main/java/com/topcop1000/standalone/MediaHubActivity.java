@@ -105,8 +105,8 @@ public class MediaHubActivity extends Activity {
                 if(focus==2){editLiveLine();return;}
                 if(focus==3){deleteLiveLine();return;}
                 if(focus==4){Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return;}
-                if(focus==5){android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);String server=sp.getString("stalker_server",""),mac=sp.getString("stalker_mac","");if(server.isEmpty()||mac.isEmpty())askStalker();else testStalker(server,mac);return;}
-                if(focus==6){android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",sp.getString("xtream_server",""),sp.getString("xtream_user",""),sp.getString("xtream_secret",""));String url=PortalUrlBuilder.xtreamPlaylist(p);if(url.isEmpty())askXtream();else importRemoteM3u(url);return;}
+                if(focus==5){showStalkerMenu();return;}
+                if(focus==6){showXtreamMenu();return;}
                 if(focus==7){showLiveLineFavorites();return;}
             }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
@@ -132,6 +132,22 @@ public class MediaHubActivity extends Activity {
             }
             Toast.makeText(MediaHubActivity.this,"Funktion nicht verfügbar",Toast.LENGTH_SHORT).show();
         }
+        void showStalkerMenu(){
+            android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
+            String server=sp.getString("stalker_server",""),mac=sp.getString("stalker_mac","");
+            if(server.isEmpty()||mac.isEmpty()){askStalker();return;}
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("STALKER / MAC")
+                .setItems(new String[]{"VERBINDEN","BEARBEITEN"},(d,which)->{if(which==0)testStalker(server,mac);else askStalker();}).show();
+        }
+        void showXtreamMenu(){
+            android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
+            PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",sp.getString("xtream_server",""),sp.getString("xtream_user",""),sp.getString("xtream_secret",""));
+            String url=PortalUrlBuilder.xtreamPlaylist(p);
+            if(url.isEmpty()){askXtream();return;}
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("XTREAM")
+                .setItems(new String[]{"VERBINDEN","BEARBEITEN"},(d,which)->{if(which==0)importRemoteM3u(url);else askXtream();}).show();
+        }
+
         void loadLiveLines(){
             liveLines.clear();
             String raw=getSharedPreferences("topcop_live_lines",MODE_PRIVATE).getString("lines","");
