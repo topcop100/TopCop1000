@@ -14,6 +14,8 @@ public class MainActivity extends Activity {
         setContentView(new GraveyardView());
     }
 
+    @Override protected void onResume(){ super.onResume(); if(getWindow().getDecorView()!=null) getWindow().getDecorView().invalidate(); }
+
     final class GraveyardView extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final String[] labels={"MP3 CENTER","VIDEO","LIVE TV","PORTALE","APPS","DATEIEN","TOOLS","EINSTELLUNGEN","FAVORITEN","RESERVE","EXIT"};
@@ -26,6 +28,7 @@ public class MainActivity extends Activity {
         GraveyardView(){ super(MainActivity.this); zombies=prefs.getBoolean("zombies",true); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
 
         @Override protected void onDraw(Canvas c){
+            zombies=prefs.getBoolean("zombies",true);
             int w=getWidth(),h=getHeight();
             c.drawColor(Color.rgb(5,5,8));
             drawSky(c,w,h);
