@@ -21,11 +21,28 @@ public class MediaHubActivity extends Activity {
     @Override public void onCreate(Bundle b){super.onCreate(b);hubView=new HubView();setContentView(hubView);String raw=getIntent().getStringExtra("playlist_uri");if(raw!=null&&!raw.isEmpty())parseM3u(Uri.parse(raw));String favCmd=getIntent().getStringExtra("favorite_stalker_cmd");if(favCmd!=null&&!favCmd.isEmpty())openSavedStalkerFavorite(favCmd);}
     void openSavedStalkerFavorite(String cmd){
         android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
-        String server=sp.getString("stalker_server",""),mac=sp.getString("stalker_mac",""),token=sp.getString("stalker_token","");
+        String server=sp.getString("stalker_server",""),mac=sp.getString("stalker_mac","");
         String base=PortalUrlBuilder.normalizeServer(server);
-        if(base.isEmpty()||mac.isEmpty()||token.isEmpty()){Toast.makeText(this,"Stalker-Profil oder Token fehlt",Toast.LENGTH_SHORT).show();return;}
-        stalkerBase=base;stalkerMac=mac;stalkerToken=token;
-        hubView.resolveStalkerLink(cmd);
+        if(base.isEmpty()||mac.isEmpty()){Toast.makeText(this,"Stalker-Profil fehlt",Toast.LENGTH_SHORT).show();return;}
+        refreshStalkerTokenAndResolve(base,mac,cmd);
+    }
+    void refreshStalkerTokenAndResolve(String base,String mac,String cmd){
+        new Thread(()->{
+            HttpURLConnection con=null;
+            try{
+                URL u=new URL(base+"/server/load.php?type=stb&action=handshake&token=&JsHttpRequest=1-xml");
+                con=(HttpURLConnection)u.openConnection();con.setConnectTimeout(8000);con.setReadTimeout(10000);
+                con.setRequestProperty("Cookie","mac="+mac.replace(":","%3A")+"; stb_lang=en; timezone=UTC");
+                con.setRequestProperty("User-Agent","Mozilla/5.0 (QtEmbedded; U; Linux; C) MAG200 stbapp");
+                if(con.getResponseCode()<200||con.getResponseCode()>=400)throw new IOException();
+                StringBuilder sb=new StringBuilder();try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){String ln;while((ln=br.readLine())!=null)sb.append(ln);}
+                java.util.regex.Matcher tm=java.util.regex.Pattern.compile("\\\"token\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(sb.toString());
+                if(!tm.find())throw new IOException();
+                String token=tm.group(1);getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_token",token).apply();
+                stalkerBase=base;stalkerMac=mac;stalkerToken=token;runOnUiThread(()->hubView.resolveStalkerLink(cmd));
+            }catch(Exception e){runOnUiThread(()->Toast.makeText(this,"Stalker-Favorit konnte nicht verbunden werden",Toast.LENGTH_SHORT).show());}
+            finally{if(con!=null)con.disconnect();}
+        }).start();
     }
     final class HubView extends View{
         final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
