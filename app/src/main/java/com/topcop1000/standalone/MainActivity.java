@@ -91,6 +91,7 @@ public class MainActivity extends Activity {
         }
 
         void openTile(int i){
+            if(i==0){ startActivity(new Intent(MainActivity.this,Mp3CenterActivity.class)); return; }
             String name=labels[i];
             Toast.makeText(MainActivity.this,name+" vorbereitet",Toast.LENGTH_SHORT).show();
         }
