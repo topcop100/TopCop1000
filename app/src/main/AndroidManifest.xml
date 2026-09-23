@@ -2,6 +2,7 @@
     <uses-feature android:name="android.software.leanback" android:required="false"/>
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
     <application android:theme="@style/Theme.TopCop" android:label="TopCop1000">
+        <activity android:name=".FilesToolsActivity" android:screenOrientation="landscape" android:exported="false"/>
         <activity android:name=".AppsActivity" android:screenOrientation="landscape" android:exported="false"/>
         <activity android:name=".MediaHubActivity" android:screenOrientation="landscape" android:exported="false"/>
         <activity android:name=".Mp3CenterActivity" android:screenOrientation="landscape" android:exported="false"/>
