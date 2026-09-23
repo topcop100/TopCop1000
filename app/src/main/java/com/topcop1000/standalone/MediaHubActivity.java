@@ -161,7 +161,7 @@ public class MediaHubActivity extends Activity {
             loadLiveLines();if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Keine Line zum Bearbeiten",Toast.LENGTH_SHORT).show();return;}
             final String[] a=liveLines.toArray(new String[0]);new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setItems(a,(d,which)->{
                 final EditText input=new EditText(MediaHubActivity.this);input.setText(a[which]);
-                new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setView(input).setPositiveButton("Speichern",(d2,w)->{String v=input.getText().toString().trim();int sep=v.indexOf('|');String url=(sep>=0?v.substring(sep+1):v).trim();if(v.isEmpty()||!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Format: Name | http(s)://...",Toast.LENGTH_SHORT).show();return;}liveLines.set(which,v);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line geändert",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
+                new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setView(input).setPositiveButton("Speichern",(d2,w)->{String v=input.getText().toString().trim();int sep=v.indexOf('|');String url=(sep>=0?v.substring(sep+1):v).trim();if(v.isEmpty()||!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Format: Name | http(s)://...",Toast.LENGTH_SHORT).show();return;}String old=a[which];android.content.SharedPreferences sp=getSharedPreferences("topcop_live_lines",MODE_PRIVATE);boolean wasFav=sp.getBoolean("fav_"+old.hashCode(),false);android.content.SharedPreferences.Editor ed=sp.edit().remove("fav_"+old.hashCode());if(wasFav)ed.putBoolean("fav_"+v.hashCode(),true);ed.apply();liveLines.set(which,v);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line geändert",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
             }).show();
         }
         void showLiveLineFavorites(){
@@ -187,7 +187,7 @@ public class MediaHubActivity extends Activity {
 
         void deleteLiveLine(){
             loadLiveLines();if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Keine Line zum Löschen",Toast.LENGTH_SHORT).show();return;}
-            final String[] a=liveLines.toArray(new String[0]);new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE LÖSCHEN").setItems(a,(d,which)->{liveLines.remove(which);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line gelöscht",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
+            final String[] a=liveLines.toArray(new String[0]);new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE LÖSCHEN").setItems(a,(d,which)->{String old=a[which];getSharedPreferences("topcop_live_lines",MODE_PRIVATE).edit().remove("fav_"+old.hashCode()).apply();liveLines.remove(which);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line gelöscht",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
         }
 
         void askModuleSearch(){
