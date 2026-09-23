@@ -48,7 +48,12 @@ public class MediaHubActivity extends Activity {
             if("VIDEO".equals(mode)&&focus==0){
                 Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_VIDEO);return;
             }
-            if("PORTALE".equals(mode)&&focus==1){ askStalker(); return; }
+            if("PORTALE".equals(mode)&&focus==1){
+                android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
+                String server=sp.getString("stalker_server",""), mac=sp.getString("stalker_mac","");
+                if(server.isEmpty()||mac.isEmpty()) askStalker(); else testStalker(server,mac);
+                return;
+            }
             if("PORTALE".equals(mode)&&focus==2){
                 android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
                 String server=sp.getString("xtream_server",""), user=sp.getString("xtream_user",""), secret=sp.getString("xtream_secret","");
@@ -70,6 +75,25 @@ public class MediaHubActivity extends Activity {
                     } finally {con.disconnect();}
                     runOnUiThread(()->{showingPlaylist=!playlistUrls.isEmpty();streamFocus=0;Toast.makeText(MediaHubActivity.this,playlistUrls.size()+" Xtream Streams geladen",Toast.LENGTH_SHORT).show();invalidate();});
                 }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Xtream Verbindung fehlgeschlagen",Toast.LENGTH_SHORT).show());}
+            }).start();
+        }
+
+        void testStalker(String server,String mac){
+            String base=PortalUrlBuilder.normalizeServer(server);
+            if(base.isEmpty()){Toast.makeText(MediaHubActivity.this,"Ungültige Stalker Serveradresse",Toast.LENGTH_SHORT).show();return;}
+            Toast.makeText(MediaHubActivity.this,"Stalker Verbindung wird geprüft",Toast.LENGTH_SHORT).show();
+            new Thread(()->{
+                HttpURLConnection con=null;
+                try{
+                    URL u=new URL(base+"/server/load.php?type=stb&action=handshake&token=&JsHttpRequest=1-xml");
+                    con=(HttpURLConnection)u.openConnection();con.setConnectTimeout(8000);con.setReadTimeout(10000);
+                    con.setRequestProperty("Cookie","mac="+mac.replace(":","%3A")+"; stb_lang=en; timezone=UTC");
+                    con.setRequestProperty("User-Agent","Mozilla/5.0 (QtEmbedded; U; Linux; C) MAG200 stbapp");
+                    int code=con.getResponseCode();
+                    final boolean ok=code>=200&&code<400;
+                    runOnUiThread(()->Toast.makeText(MediaHubActivity.this,ok?"Stalker Portal erreichbar":"Stalker antwortet nicht korrekt",Toast.LENGTH_SHORT).show());
+                }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Stalker Verbindung fehlgeschlagen",Toast.LENGTH_SHORT).show());}
+                finally{if(con!=null)con.disconnect();}
             }).start();
         }
 
