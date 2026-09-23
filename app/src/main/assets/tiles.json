@@ -1,15 +1,15 @@
 {
-  "version": 1,
+  "version": 2,
   "tiles": [
-    {"id":"mp3","label":"MP3 CENTER","enabled":true},
-    {"id":"video","label":"VIDEO","enabled":true},
-    {"id":"livetv","label":"LIVE TV","enabled":true},
-    {"id":"portals","label":"PORTALE","enabled":true},
-    {"id":"apps","label":"APPS","enabled":true},
-    {"id":"files","label":"DATEIEN","enabled":true},
-    {"id":"tools","label":"TOOLS","enabled":true},
-    {"id":"settings","label":"EINSTELLUNGEN","enabled":true},
-    {"id":"favorites","label":"FAVORITEN","enabled":true},
+    {"id":"tmdb","label":"TMDB","enabled":true},
+    {"id":"live_lines","label":"LIVE LINES","enabled":true},
+    {"id":"vavoo","label":"VAVOO","enabled":true},
+    {"id":"megakino","label":"MEGAKINO","enabled":true},
+    {"id":"movie_scout","label":"MOVIE SCOUT","enabled":true},
+    {"id":"youtube","label":"YOUTUBE","enabled":true},
+    {"id":"cumination","label":"CUMINATION","enabled":true},
+    {"id":"mp3_streams","label":"MP3 STREAMS","enabled":true},
+    {"id":"search","label":"SUCHE","enabled":true},
     {"id":"reserve","label":"RESERVE","enabled":false}
   ]
 }
