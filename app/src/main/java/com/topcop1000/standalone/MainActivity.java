@@ -92,6 +92,7 @@ public class MainActivity extends Activity {
 
         void openTile(int i){
             if(i==0){ startActivity(new Intent(MainActivity.this,Mp3CenterActivity.class)); return; }
+            if(i==1||i==2||i==3){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,i==1?"VIDEO":(i==2?"LIVE TV":"PORTALE")); startActivity(x); return; }
             String name=labels[i];
             Toast.makeText(MainActivity.this,name+" vorbereitet",Toast.LENGTH_SHORT).show();
         }
