@@ -95,8 +95,30 @@ public class MediaHubActivity extends Activity {
                     if(ok){try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){StringBuilder sb=new StringBuilder();String ln;while((ln=br.readLine())!=null)sb.append(ln);String body=sb.toString();int pos=body.indexOf("\\\"token\\\"");if(pos>=0){int colon=body.indexOf(':',pos),q1=body.indexOf('"',colon+1),q2=q1<0?-1:body.indexOf('"',q1+1);if(q1>=0&&q2>q1)token=body.substring(q1+1,q2);}}}
                     final String finalToken=token;
                     if(!finalToken.isEmpty())getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_token",finalToken).apply();
-                    runOnUiThread(()->Toast.makeText(MediaHubActivity.this,!finalToken.isEmpty()?"Stalker Handshake OK · Token gespeichert":(ok?"Portal erreichbar · kein Token erkannt":"Stalker antwortet nicht korrekt"),Toast.LENGTH_SHORT).show());
+                    runOnUiThread(()->{
+                        Toast.makeText(MediaHubActivity.this,!finalToken.isEmpty()?"Stalker Handshake OK · Token gespeichert":(ok?"Portal erreichbar · kein Token erkannt":"Stalker antwortet nicht korrekt"),Toast.LENGTH_SHORT).show();
+                        if(!finalToken.isEmpty()) loadStalkerChannels(base,mac,finalToken);
+                    });
                 }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Stalker Verbindung fehlgeschlagen",Toast.LENGTH_SHORT).show());}
+                finally{if(con!=null)con.disconnect();}
+            }).start();
+        }
+
+        void loadStalkerChannels(String base,String mac,String token){
+            new Thread(()->{
+                HttpURLConnection con=null;
+                try{
+                    URL u=new URL(base+"/server/load.php?type=itv&action=get_all_channels&JsHttpRequest=1-xml");
+                    con=(HttpURLConnection)u.openConnection();con.setConnectTimeout(8000);con.setReadTimeout(12000);
+                    con.setRequestProperty("Authorization","Bearer "+token);
+                    con.setRequestProperty("Cookie","mac="+mac.replace(":","%3A")+"; stb_lang=en; timezone=UTC");
+                    con.setRequestProperty("User-Agent","Mozilla/5.0 (QtEmbedded; U; Linux; C) MAG200 stbapp");
+                    if(con.getResponseCode()<200||con.getResponseCode()>=400)throw new IOException("HTTP "+con.getResponseCode());
+                    StringBuilder sb=new StringBuilder();try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){String ln;while((ln=br.readLine())!=null)sb.append(ln);}
+                    String body=sb.toString(); int count=0,pos=0; while((pos=body.indexOf("\\\"name\\\"",pos))>=0){count++;pos+=6;}
+                    final int channels=count;
+                    runOnUiThread(()->Toast.makeText(MediaHubActivity.this,channels>0?channels+" Stalker Sender erkannt":"Stalker verbunden · keine Sender erkannt",Toast.LENGTH_SHORT).show());
+                }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Stalker Senderabfrage fehlgeschlagen",Toast.LENGTH_SHORT).show());}
                 finally{if(con!=null)con.disconnect();}
             }).start();
         }
