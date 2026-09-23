@@ -39,3 +39,13 @@ Do not run Actions during development. Before final APK builds:
 ## Build status
 - Automatic push builds are disabled.
 - No GitHub Action should be started until the final double-check is complete.
+
+
+## Stand 2026-09-23 – Modulumbau
+- Hauptseite: TMDB, LIVE LINES, VAVOO, MEGAKINO, MOVIE SCOUT, YOUTUBE, CUMINATION, MP3 STREAMS, SUCHE, RESERVE + separates EXIT.
+- LIVE LINES: eigene Lines hinzufügen/bearbeiten/löschen, Favoriten, M3U/M3U8-Import, Stalker/MAC und Xtream.
+- Stalker-Favoriten und Datei-Importe werden über LIVE LINES geführt.
+- Einstellungen sind per MENU auf dem markierten EXIT erreichbar.
+- VAVOO, MEGAKINO, MOVIE SCOUT und CUMINATION bleiben sichtbar, werden aber nicht mit erfundenen Funktionen befüllt, solange die Original-Modulstruktur fehlt.
+- GitHub Actions bleibt ausschließlich manuell (workflow_dispatch). Während der Entwicklung kein Build.
+- Vor finalem 32-/64-Bit-Paket sind weiterhin zwei vollständige Prüfungen vorgesehen.
