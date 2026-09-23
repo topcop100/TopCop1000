@@ -36,7 +36,7 @@ public class Mp3CenterActivity extends Activity {
     void configureStream(int slot){
         final SharedPreferences prefs=getSharedPreferences("topcop",MODE_PRIVATE);
         final EditText input=new EditText(this); input.setHint("https://..."); input.setText(prefs.getString(streamKeys[slot],""));
-        new AlertDialog.Builder(this).setTitle("STREAM "+(slot+1)+" BEARBEITEN").setView(input)
+        new AlertDialog.Builder(this).setTitle("MP3 STREAM "+(slot+1)+" BEARBEITEN").setView(input)
             .setPositiveButton("Speichern",(d,w)->{String url=input.getText().toString().trim();if(!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(this,"Ungültige Stream-Adresse",Toast.LENGTH_SHORT).show();return;}prefs.edit().putString(streamKeys[slot],url).apply();Toast.makeText(this,"Stream gespeichert",Toast.LENGTH_SHORT).show();})
             .setNegativeButton("Abbrechen",null).show();
     }
@@ -69,7 +69,7 @@ public class Mp3CenterActivity extends Activity {
         Mp3View(){super(Mp3CenterActivity.this);setFocusable(true);requestFocus();}
         @Override protected void onDraw(Canvas c){
             c.drawColor(Color.rgb(5,5,8)); p.setTypeface(Typeface.DEFAULT_BOLD);p.setTextAlign(Paint.Align.CENTER);
-            p.setTextSize(getHeight()*.07f);p.setColor(Color.rgb(255,30,80));c.drawText("MP3 CENTER",getWidth()/2f,getHeight()*.14f,p);
+            p.setTextSize(getHeight()*.07f);p.setColor(Color.rgb(255,30,80));c.drawText("MP3 STREAMS",getWidth()/2f,getHeight()*.14f,p);
             float y=getHeight()*.27f;
             for(int i=0;i<items.length;i++){p.setColor(i==focus?Color.rgb(120,10,35):Color.rgb(42,42,50));RectF r=new RectF(getWidth()*.18f,y+i*getHeight()*.105f,getWidth()*.82f,y+i*getHeight()*.105f+getHeight()*.075f);c.drawRoundRect(r,20,20,p);p.setTextSize(getHeight()*.035f);p.setColor(Color.WHITE);c.drawText(items[i],r.centerX(),r.centerY()+10,p);}
         }
