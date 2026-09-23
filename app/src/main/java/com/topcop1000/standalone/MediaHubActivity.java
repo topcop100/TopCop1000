@@ -153,13 +153,13 @@ public class MediaHubActivity extends Activity {
         void askStalker(){
             final EditText input=new EditText(MediaHubActivity.this); input.setHint("Server URL | MAC");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("Stalker / MAC").setView(input)
-                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",2); if(a.length==2){PortalProfile p=new PortalProfile(PortalProfile.Type.STALKER,"Stalker",a[0].trim(),"",a[1].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_server",p.server).putString("stalker_mac",p.secret).apply();Toast.makeText(MediaHubActivity.this,"Stalker-Profil gespeichert",Toast.LENGTH_SHORT).show();}}})
+                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",2); if(a.length==2){PortalProfile p=new PortalProfile(PortalProfile.Type.STALKER,"Stalker",a[0].trim(),"",a[1].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_server",p.server).putString("stalker_mac",p.secret).remove("stalker_token").apply();Toast.makeText(MediaHubActivity.this,"Stalker-Profil gespeichert · Verbindung wird geprüft",Toast.LENGTH_SHORT).show();testStalker(p.server,p.secret);}}})
                 .setNegativeButton("Abbrechen",null).show();
         }
         void askXtream(){
             final EditText input=new EditText(MediaHubActivity.this); input.setHint("Server URL | Benutzer | Passwort");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("Xtream").setView(input)
-                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",3); if(a.length==3){PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",a[0].trim(),a[1].trim(),a[2].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("xtream_server",p.server).putString("xtream_user",p.user).putString("xtream_secret",p.secret).apply();Toast.makeText(MediaHubActivity.this,"Xtream-Profil gespeichert",Toast.LENGTH_SHORT).show();}}})
+                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",3); if(a.length==3){PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",a[0].trim(),a[1].trim(),a[2].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("xtream_server",p.server).putString("xtream_user",p.user).putString("xtream_secret",p.secret).apply();Toast.makeText(MediaHubActivity.this,"Xtream-Profil gespeichert · Playlist wird geladen",Toast.LENGTH_SHORT).show();String url=PortalUrlBuilder.xtreamPlaylist(p);if(!url.isEmpty())importRemoteM3u(url);}}})
                 .setNegativeButton("Abbrechen",null).show();
         }
 
