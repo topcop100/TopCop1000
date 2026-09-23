@@ -50,8 +50,10 @@ public class MediaHubActivity extends Activity {
         HubView(){super(MediaHubActivity.this);mode=getIntent().getStringExtra(EXTRA_MODE);
             items="VIDEO".equals(mode)?new String[]{"DATEI ÖFFNEN","VIDEO-URL","FAVORITEN","ZURÜCK"}:
                   "SUCHE".equals(mode)?new String[]{"SUCHBEGRIFF","TMDB","VAVOO","MEGAKINO","MOVIE SCOUT","YOUTUBE","CUMINATION","ZURÜCK"}:
-                  ("TMDB".equals(mode)||"VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"YOUTUBE".equals(mode)||"CUMINATION".equals(mode))?new String[]{"SUCHE","FAVORITEN","ZURÜCK"}:
-                  "LIVE LINES".equals(mode)?new String[]{"M3U / M3U8","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"}:
+                  "TMDB".equals(mode)?new String[]{"SUCHE","BELIEBTE FILME","BELIEBTE SERIEN","KINO","BEWERTUNGEN","FAVORITEN","ZURÜCK"}:
+                  "YOUTUBE".equals(mode)?new String[]{"SUCHE","VIDEOS","KANÄLE / PLAYLISTEN","VERLAUF","FAVORITEN","ZURÜCK"}:
+                  ("VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"CUMINATION".equals(mode))?new String[]{"SUCHE","FAVORITEN","ZURÜCK"}:
+                  "LIVE LINES".equals(mode)?new String[]{"LINES","LINE HINZUFÜGEN","LINE BEARBEITEN","LINE LÖSCHEN","FAVORITEN","ZURÜCK"}:
                   new String[]{"M3U / M3U8","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"};
             setFocusable(true);requestFocus();}
         @Override protected void onDraw(Canvas c){
@@ -88,9 +90,13 @@ public class MediaHubActivity extends Activity {
                 if("TMDB".equals(target)){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.themoviedb.org/search?query="+Uri.encode(q))));}catch(Exception e){Toast.makeText(MediaHubActivity.this,"TMDb konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}return;}
                 Toast.makeText(MediaHubActivity.this,target+": Suchquelle noch nicht konfiguriert",Toast.LENGTH_SHORT).show();return;
             }
-            if("TMDB".equals(mode)||"VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"YOUTUBE".equals(mode)||"CUMINATION".equals(mode)){
+            if("TMDB".equals(mode)||"YOUTUBE".equals(mode)||"VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"CUMINATION".equals(mode)){
                 if(focus==0){askModuleSearch();return;}
-                if(focus==1){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","video");startActivity(fav);return;}
+                if("FAVORITEN".equals(items[focus])){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","video");startActivity(fav);return;}
+                Toast.makeText(MediaHubActivity.this,items[focus]+" – Modulansicht",Toast.LENGTH_SHORT).show();return;
+            }
+            if("LIVE LINES".equals(mode)){
+                Toast.makeText(MediaHubActivity.this,items[focus]+" – Line-Verwaltung",Toast.LENGTH_SHORT).show();return;
             }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
             if("VIDEO".equals(mode)&&focus==0){
