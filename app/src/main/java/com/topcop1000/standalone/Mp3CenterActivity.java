@@ -74,7 +74,12 @@ public class Mp3CenterActivity extends Activity {
             for(int i=0;i<items.length;i++){p.setColor(i==focus?Color.rgb(120,10,35):Color.rgb(42,42,50));RectF r=new RectF(getWidth()*.18f,y+i*getHeight()*.105f,getWidth()*.82f,y+i*getHeight()*.105f+getHeight()*.075f);c.drawRoundRect(r,20,20,p);p.setTextSize(getHeight()*.035f);p.setColor(Color.WHITE);c.drawText(items[i],r.centerX(),r.centerY()+10,p);}
         }
         @Override public boolean onKeyDown(int k,KeyEvent e){
-            if(k==KeyEvent.KEYCODE_MENU&&(focus==0||focus==1)){configureStream(focus);return true;}
+            if(k==KeyEvent.KEYCODE_MENU&&(focus==0||focus==1)){
+                final int slot=focus;
+                new AlertDialog.Builder(Mp3CenterActivity.this).setTitle("STREAM "+(slot+1))
+                    .setItems(new String[]{"BEARBEITEN","ALS FAVORIT SPEICHERN"},(d,which)->{if(which==0)configureStream(slot);else addCurrentFavorite(slot);})
+                    .show();return true;
+            }
             if(k==KeyEvent.KEYCODE_BUTTON_Y&&(focus==0||focus==1)){addCurrentFavorite(focus);return true;}
             if(k==KeyEvent.KEYCODE_DPAD_DOWN)focus=Math.min(items.length-1,focus+1);
             else if(k==KeyEvent.KEYCODE_DPAD_UP)focus=Math.max(0,focus-1);
@@ -83,7 +88,7 @@ public class Mp3CenterActivity extends Activity {
                 if(focus==0||focus==1){playSavedStream(focus);}
                 else if(focus==4&&player!=null){player.stop();player.release();player=null;}
                 else if(focus==2){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("audio/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_AUDIO); }
-                else if(focus==3){startActivity(new Intent(Mp3CenterActivity.this,FavoritesActivity.class));}
+                else if(focus==3){Intent fav=new Intent(Mp3CenterActivity.this,FavoritesActivity.class);fav.putExtra("category","mp3");startActivity(fav);}
                 else if(focus==5)finish();
             }else return super.onKeyDown(k,e); invalidate();return true;
         }
