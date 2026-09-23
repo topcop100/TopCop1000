@@ -115,10 +115,12 @@ public class MainActivity extends Activity {
         }
 
         void openTile(int i){
+            if(i==0){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,"TMDB"); startActivity(x); return; }
+            if(i==1){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,"LIVE LINES"); startActivity(x); return; }
+            if(i==2||i==3||i==4||i==5||i==6){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,labels[i]); startActivity(x); return; }
             if(i==7){ startActivity(new Intent(MainActivity.this,Mp3CenterActivity.class)); return; }
             if(i==8){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,"SUCHE"); startActivity(x); return; }
             if(i==9){ Toast.makeText(MainActivity.this,"RESERVE – frei für spätere Funktion",Toast.LENGTH_SHORT).show(); return; }
-            Toast.makeText(MainActivity.this,labels[i]+" – Modul wird nativ eingebunden",Toast.LENGTH_SHORT).show();
         }
 
         @Override public boolean onKeyDown(int key,KeyEvent e){
