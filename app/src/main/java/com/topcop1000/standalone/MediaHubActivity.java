@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.Toast;
+import android.widget.EditText;
+import android.app.AlertDialog;
 import java.io.*;
 import java.util.*;
 
@@ -45,8 +47,23 @@ public class MediaHubActivity extends Activity {
             if("VIDEO".equals(mode)&&focus==0){
                 Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_VIDEO);return;
             }
+            if("PORTALE".equals(mode)&&focus==1){ askStalker(); return; }
+            if("PORTALE".equals(mode)&&focus==2){ askXtream(); return; }
             Toast.makeText(MediaHubActivity.this,items[focus]+" vorbereitet",Toast.LENGTH_SHORT).show();
         }
+        void askStalker(){
+            final EditText input=new EditText(MediaHubActivity.this); input.setHint("Server URL | MAC");
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("Stalker / MAC").setView(input)
+                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",2); if(a.length==2){PortalProfile p=new PortalProfile(PortalProfile.Type.STALKER,"Stalker",a[0].trim(),"",a[1].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_server",p.server).putString("stalker_mac",p.secret).apply();Toast.makeText(MediaHubActivity.this,"Stalker-Profil gespeichert",Toast.LENGTH_SHORT).show();}}})
+                .setNegativeButton("Abbrechen",null).show();
+        }
+        void askXtream(){
+            final EditText input=new EditText(MediaHubActivity.this); input.setHint("Server URL | Benutzer | Passwort");
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("Xtream").setView(input)
+                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",3); if(a.length==3){PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",a[0].trim(),a[1].trim(),a[2].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("xtream_server",p.server).putString("xtream_user",p.user).putString("xtream_secret",p.secret).apply();Toast.makeText(MediaHubActivity.this,"Xtream-Profil gespeichert",Toast.LENGTH_SHORT).show();}}})
+                .setNegativeButton("Abbrechen",null).show();
+        }
+
         @Override public boolean onKeyDown(int k,KeyEvent e){
             if(showingPlaylist){
                 if(k==KeyEvent.KEYCODE_DPAD_DOWN)streamFocus=Math.min(playlistNames.size()-1,streamFocus+1);
