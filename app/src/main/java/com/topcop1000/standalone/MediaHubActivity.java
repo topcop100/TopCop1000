@@ -79,9 +79,17 @@ public class MediaHubActivity extends Activity {
 
         void choose(){
             if(focus==items.length-1){finish();return;}
-            if("SUCHE".equals(mode)){Toast.makeText(MediaHubActivity.this,"Globale Suche: "+items[focus],Toast.LENGTH_SHORT).show();return;}
+            if("SUCHE".equals(mode)){
+                if(focus==0){askGlobalSearch();return;}
+                String q=getSharedPreferences("topcop_search",MODE_PRIVATE).getString("last_query","");
+                if(q.isEmpty()){Toast.makeText(MediaHubActivity.this,"Erst SUCHBEGRIFF eingeben",Toast.LENGTH_SHORT).show();return;}
+                String target=items[focus];
+                if("YOUTUBE".equals(target)){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.youtube.com/results?search_query="+Uri.encode(q))));}catch(Exception e){Toast.makeText(MediaHubActivity.this,"YouTube konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}return;}
+                if("TMDB".equals(target)){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.themoviedb.org/search?query="+Uri.encode(q))));}catch(Exception e){Toast.makeText(MediaHubActivity.this,"TMDb konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}return;}
+                Toast.makeText(MediaHubActivity.this,target+": Suchquelle noch nicht konfiguriert",Toast.LENGTH_SHORT).show();return;
+            }
             if("TMDB".equals(mode)||"VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"YOUTUBE".equals(mode)||"CUMINATION".equals(mode)){
-                if(focus==0){Toast.makeText(MediaHubActivity.this,mode+" Suche",Toast.LENGTH_SHORT).show();return;}
+                if(focus==0){askModuleSearch();return;}
                 if(focus==1){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","video");startActivity(fav);return;}
             }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
@@ -107,6 +115,37 @@ public class MediaHubActivity extends Activity {
             }
             Toast.makeText(MediaHubActivity.this,"Funktion nicht verfügbar",Toast.LENGTH_SHORT).show();
         }
+        void askModuleSearch(){
+            final EditText input=new EditText(MediaHubActivity.this);input.setHint("Suchbegriff");
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle(mode+" SUCHE").setView(input)
+                .setPositiveButton("Suchen",(d,w)->{
+                    String q=input.getText().toString().trim();
+                    if(q.isEmpty()){Toast.makeText(MediaHubActivity.this,"Bitte Suchbegriff eingeben",Toast.LENGTH_SHORT).show();return;}
+                    if("YOUTUBE".equals(mode)){
+                        try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.youtube.com/results?search_query="+Uri.encode(q))));}
+                        catch(Exception e){Toast.makeText(MediaHubActivity.this,"YouTube konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}
+                        return;
+                    }
+                    if("TMDB".equals(mode)){
+                        try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.themoviedb.org/search?query="+Uri.encode(q))));}
+                        catch(Exception e){Toast.makeText(MediaHubActivity.this,"TMDb konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}
+                        return;
+                    }
+                    Toast.makeText(MediaHubActivity.this,mode+": Suchquelle noch nicht konfiguriert",Toast.LENGTH_SHORT).show();
+                }).setNegativeButton("Abbrechen",null).show();
+        }
+
+        void askGlobalSearch(){
+            final EditText input=new EditText(MediaHubActivity.this);input.setHint("Suchbegriff");
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("GLOBALE SUCHE").setView(input)
+                .setPositiveButton("Weiter",(d,w)->{
+                    String q=input.getText().toString().trim();
+                    if(q.isEmpty()){Toast.makeText(MediaHubActivity.this,"Bitte Suchbegriff eingeben",Toast.LENGTH_SHORT).show();return;}
+                    getSharedPreferences("topcop_search",MODE_PRIVATE).edit().putString("last_query",q).apply();
+                    Toast.makeText(MediaHubActivity.this,"Suchbegriff gespeichert – Quelle auswählen",Toast.LENGTH_SHORT).show();
+                }).setNegativeButton("Abbrechen",null).show();
+        }
+
         void askVideoUrl(){
             final EditText input=new EditText(MediaHubActivity.this);input.setHint("https://... Video URL");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("VIDEO-URL").setView(input)
