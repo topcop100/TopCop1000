@@ -49,6 +49,9 @@ public class MediaHubActivity extends Activity {
         final String mode; final String[] items; int focus=0;
         HubView(){super(MediaHubActivity.this);mode=getIntent().getStringExtra(EXTRA_MODE);
             items="VIDEO".equals(mode)?new String[]{"DATEI ÖFFNEN","VIDEO-URL","FAVORITEN","ZURÜCK"}:
+                  "SUCHE".equals(mode)?new String[]{"SUCHBEGRIFF","TMDB","VAVOO","MEGAKINO","MOVIE SCOUT","YOUTUBE","CUMINATION","ZURÜCK"}:
+                  ("TMDB".equals(mode)||"VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"YOUTUBE".equals(mode)||"CUMINATION".equals(mode))?new String[]{"SUCHE","FAVORITEN","ZURÜCK"}:
+                  "LIVE LINES".equals(mode)?new String[]{"M3U / M3U8","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"}:
                   new String[]{"M3U / M3U8","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"};
             setFocusable(true);requestFocus();}
         @Override protected void onDraw(Canvas c){
@@ -76,6 +79,11 @@ public class MediaHubActivity extends Activity {
 
         void choose(){
             if(focus==items.length-1){finish();return;}
+            if("SUCHE".equals(mode)){Toast.makeText(MediaHubActivity.this,"Globale Suche: "+items[focus],Toast.LENGTH_SHORT).show();return;}
+            if("TMDB".equals(mode)||"VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"YOUTUBE".equals(mode)||"CUMINATION".equals(mode)){
+                if(focus==0){Toast.makeText(MediaHubActivity.this,mode+" Suche",Toast.LENGTH_SHORT).show();return;}
+                if(focus==1){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","video");startActivity(fav);return;}
+            }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
             if("VIDEO".equals(mode)&&focus==0){
                 Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_VIDEO);return;
