@@ -7,8 +7,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.Toast;
+import java.io.*;
+import java.util.*;
 
 public class MediaHubActivity extends Activity {
+    final ArrayList<String> playlistNames=new ArrayList<>(), playlistUrls=new ArrayList<>();
     public static final String EXTRA_MODE="mode";
     @Override public void onCreate(Bundle b){super.onCreate(b);setContentView(new HubView());}
     final class HubView extends View{
@@ -28,6 +31,7 @@ public class MediaHubActivity extends Activity {
         }
         void choose(){
             if(focus==items.length-1){finish();return;}
+            if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,21);return; }
             if("VIDEO".equals(mode)&&focus==0){
                 Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,20);return;
             }
@@ -41,7 +45,10 @@ public class MediaHubActivity extends Activity {
             invalidate();return true;
         }
     }
+    void parseM3u(Uri u){ playlistNames.clear(); playlistUrls.clear(); try(BufferedReader br=new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(u)))){String line,name=null; while((line=br.readLine())!=null){line=line.trim(); if(line.startsWith("#EXTINF:")){int comma=line.indexOf(","); name=comma>=0?line.substring(comma+1).trim():"STREAM";} else if(!line.isEmpty()&&!line.startsWith("#")){playlistNames.add(name==null?"STREAM "+(playlistNames.size()+1):name);playlistUrls.add(line);name=null;}} Toast.makeText(this,playlistUrls.size()+" Streams eingelesen",Toast.LENGTH_SHORT).show();}catch(Exception e){Toast.makeText(this,"Playlist konnte nicht gelesen werden",Toast.LENGTH_SHORT).show();}}
+
     @Override protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);
+        if(req==21&&res==RESULT_OK&&data!=null&&data.getData()!=null){parseM3u(data.getData());return;}
         if(req==20&&res==RESULT_OK&&data!=null&&data.getData()!=null){
             Uri u=data.getData();Intent play=new Intent(Intent.ACTION_VIEW);play.setDataAndType(u,"video/*");play.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try{startActivity(play);}catch(Exception e){Toast.makeText(this,"Kein Videoplayer installiert",Toast.LENGTH_SHORT).show();}
