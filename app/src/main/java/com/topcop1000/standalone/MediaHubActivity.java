@@ -54,7 +54,7 @@ public class MediaHubActivity extends Activity {
                   "TMDB".equals(mode)?new String[]{"SUCHE","BELIEBTE FILME","BELIEBTE SERIEN","KINO","BEWERTUNGEN","FAVORITEN","ZURÜCK"}:
                   "YOUTUBE".equals(mode)?new String[]{"SUCHE","VIDEOS","KANÄLE / PLAYLISTEN","VERLAUF","FAVORITEN","ZURÜCK"}:
                   ("VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"CUMINATION".equals(mode))?new String[]{"SUCHE","FAVORITEN","ZURÜCK"}:
-                  "LIVE LINES".equals(mode)?new String[]{"LINES","LINE HINZUFÜGEN","LINE BEARBEITEN","LINE LÖSCHEN","FAVORITEN","ZURÜCK"}:
+                  "LIVE LINES".equals(mode)?new String[]{"LINES","LINE HINZUFÜGEN","LINE BEARBEITEN","LINE LÖSCHEN","M3U / M3U8 IMPORT","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"}:
                   new String[]{"M3U / M3U8","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"};
             setFocusable(true);requestFocus();}
         @Override protected void onDraw(Canvas c){
@@ -101,7 +101,10 @@ public class MediaHubActivity extends Activity {
                 if(focus==1){addLiveLine();return;}
                 if(focus==2){editLiveLine();return;}
                 if(focus==3){deleteLiveLine();return;}
-                if(focus==4){showLiveLineFavorites();return;}
+                if(focus==4){Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return;}
+                if(focus==5){android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);String server=sp.getString("stalker_server",""),mac=sp.getString("stalker_mac","");if(server.isEmpty()||mac.isEmpty())askStalker();else testStalker(server,mac);return;}
+                if(focus==6){android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",sp.getString("xtream_server",""),sp.getString("xtream_user",""),sp.getString("xtream_secret",""));String url=PortalUrlBuilder.xtreamPlaylist(p);if(url.isEmpty())askXtream();else importRemoteM3u(url);return;}
+                if(focus==7){showLiveLineFavorites();return;}
             }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
             if("VIDEO".equals(mode)&&focus==0){
@@ -313,7 +316,7 @@ public class MediaHubActivity extends Activity {
                 if(k==KeyEvent.KEYCODE_DPAD_DOWN)streamFocus=Math.min(playlistNames.size()-1,streamFocus+1);
                 else if(k==KeyEvent.KEYCODE_DPAD_UP)streamFocus=Math.max(0,streamFocus-1);
                 else if(k==KeyEvent.KEYCODE_DPAD_CENTER||k==KeyEvent.KEYCODE_ENTER)openStream();
-                else if(k==KeyEvent.KEYCODE_MENU&&!playlistUrls.isEmpty()){String url=playlistUrls.get(streamFocus).trim();String cat="PORTALE".equals(mode)?"portals":"livetv";FavoriteStore.add(MediaHubActivity.this,cat,playlistNames.get(streamFocus)+" | "+url);Toast.makeText(MediaHubActivity.this,"Favorit gespeichert",Toast.LENGTH_SHORT).show();}
+                else if(k==KeyEvent.KEYCODE_MENU&&!playlistUrls.isEmpty()){String url=playlistUrls.get(streamFocus).trim();String cat="PORTALE".equals(mode)?"portals":("LIVE LINES".equals(mode)?"livetv":"livetv");FavoriteStore.add(MediaHubActivity.this,cat,playlistNames.get(streamFocus)+" | "+url);Toast.makeText(MediaHubActivity.this,"Favorit gespeichert",Toast.LENGTH_SHORT).show();}
                 else if(k==KeyEvent.KEYCODE_BACK){showingPlaylist=false;invalidate();return true;} else return super.onKeyDown(k,e);
                 invalidate();return true;
             }
