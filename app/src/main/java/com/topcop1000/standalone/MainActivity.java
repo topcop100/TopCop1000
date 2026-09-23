@@ -120,6 +120,7 @@ public class MainActivity extends Activity {
             if(i==1||i==2||i==3){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,i==1?"VIDEO":(i==2?"LIVE TV":"PORTALE")); startActivity(x); return; }
             if(i==4){ startActivity(new Intent(MainActivity.this,AppsActivity.class)); return; }
             if(i==5||i==6){ Intent x=new Intent(MainActivity.this,FilesToolsActivity.class); x.putExtra(FilesToolsActivity.EXTRA_MODE,i==5?"DATEIEN":"TOOLS"); startActivity(x); return; }
+            if(i==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); return; }
             if(i==8){ startActivity(new Intent(MainActivity.this,FavoritesActivity.class)); return; }
             if(i==9){ Toast.makeText(MainActivity.this,"RESERVE – frei für spätere Funktion",Toast.LENGTH_SHORT).show(); return; }
             String name=labels[i];
@@ -134,7 +135,6 @@ public class MainActivity extends Activity {
             else if(key==KeyEvent.KEYCODE_DPAD_UP){if(editMode)moveEdit(0,-1);else move(0,-1);}
             else if(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER){
                 if(focus==10) finish();
-                else if(focus==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); }
                 else if(editMode) toggleVisibility();
                 else if(visible[tileAt(focus)]) openTile(tileAt(focus));
                 else Toast.makeText(MainActivity.this,"Kachel ist ausgeblendet · MENU zum Bearbeiten",Toast.LENGTH_SHORT).show();
