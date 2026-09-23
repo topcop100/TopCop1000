@@ -37,7 +37,6 @@ public class MediaHubActivity extends Activity {
         @Override protected void onDraw(Canvas c){
             c.drawColor(Color.rgb(5,5,8)); int w=getWidth(),h=getHeight();
             p.setTypeface(Typeface.DEFAULT_BOLD);p.setTextAlign(Paint.Align.CENTER);
-            if(!showingPlaylist&&"VIDEO".equals(mode)&&k==KeyEvent.KEYCODE_MENU&&focus==1){addVideoUrlFavorite();return true;}
             if(showingPlaylist){ drawPlaylist(c,w,h); return; }
             p.setColor(Color.rgb(255,30,80));p.setTextSize(h*.07f);c.drawText(mode,w/2f,h*.15f,p);
             for(int i=0;i<items.length;i++){float y=h*.28f+i*h*.12f;RectF r=new RectF(w*.18f,y,w*.82f,y+h*.085f);
@@ -173,6 +172,7 @@ public class MediaHubActivity extends Activity {
         }
 
         @Override public boolean onKeyDown(int k,KeyEvent e){
+            if(!showingPlaylist&&"VIDEO".equals(mode)&&k==KeyEvent.KEYCODE_MENU&&focus==1){addVideoUrlFavorite();return true;}
             if(showingPlaylist){
                 if(k==KeyEvent.KEYCODE_DPAD_DOWN)streamFocus=Math.min(playlistNames.size()-1,streamFocus+1);
                 else if(k==KeyEvent.KEYCODE_DPAD_UP)streamFocus=Math.max(0,streamFocus-1);
