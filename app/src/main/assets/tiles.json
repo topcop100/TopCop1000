@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "tiles": [
+    {"id":"mp3","label":"MP3 CENTER","enabled":true},
+    {"id":"video","label":"VIDEO","enabled":true},
+    {"id":"livetv","label":"LIVE TV","enabled":true},
+    {"id":"portals","label":"PORTALE","enabled":true},
+    {"id":"apps","label":"APPS","enabled":true},
+    {"id":"files","label":"DATEIEN","enabled":true},
+    {"id":"tools","label":"TOOLS","enabled":true},
+    {"id":"settings","label":"EINSTELLUNGEN","enabled":true},
+    {"id":"favorites","label":"FAVORITEN","enabled":true},
+    {"id":"reserve","label":"RESERVE","enabled":false}
+  ]
+}
