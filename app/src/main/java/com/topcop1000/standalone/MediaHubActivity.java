@@ -53,7 +53,7 @@ public class MediaHubActivity extends Activity {
                   "SUCHE".equals(mode)?new String[]{"SUCHBEGRIFF","TMDB","VAVOO","MEGAKINO","MOVIE SCOUT","YOUTUBE","CUMINATION","ZURÜCK"}:
                   "TMDB".equals(mode)?new String[]{"SUCHE","BELIEBTE FILME","BELIEBTE SERIEN","KINO","BEWERTUNGEN","FAVORITEN","ZURÜCK"}:
                   "YOUTUBE".equals(mode)?new String[]{"SUCHE","VIDEOS","KANÄLE / PLAYLISTEN","VERLAUF","FAVORITEN","ZURÜCK"}:
-                  ("VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"CUMINATION".equals(mode))?new String[]{"SUCHE","FAVORITEN","ZURÜCK"}:
+                  ("VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"CUMINATION".equals(mode))?new String[]{"MODUL NOCH NICHT IMPORTIERT","ZURÜCK"}:
                   "LIVE LINES".equals(mode)?new String[]{"LINES","LINE HINZUFÜGEN","LINE BEARBEITEN","LINE LÖSCHEN","M3U / M3U8 IMPORT","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"}:
                   new String[]{"M3U / M3U8","STALKER / MAC","XTREAM","FAVORITEN","ZURÜCK"};
             setFocusable(true);requestFocus();}
@@ -91,10 +91,13 @@ public class MediaHubActivity extends Activity {
                 if("TMDB".equals(target)){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.themoviedb.org/search?query="+Uri.encode(q))));}catch(Exception e){Toast.makeText(MediaHubActivity.this,"TMDb konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}return;}
                 Toast.makeText(MediaHubActivity.this,target+": Suchquelle noch nicht konfiguriert",Toast.LENGTH_SHORT).show();return;
             }
-            if("TMDB".equals(mode)||"YOUTUBE".equals(mode)||"VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"CUMINATION".equals(mode)){
+            if("TMDB".equals(mode)||"YOUTUBE".equals(mode)){
                 if(focus==0){askModuleSearch();return;}
                 if("FAVORITEN".equals(items[focus])){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","video");startActivity(fav);return;}
                 Toast.makeText(MediaHubActivity.this,items[focus]+" – Modulansicht",Toast.LENGTH_SHORT).show();return;
+            }
+            if("VAVOO".equals(mode)||"MEGAKINO".equals(mode)||"MOVIE SCOUT".equals(mode)||"CUMINATION".equals(mode)){
+                if(focus==0){Toast.makeText(MediaHubActivity.this,"Original-Modulstruktur noch nicht verfügbar",Toast.LENGTH_SHORT).show();return;}
             }
             if("LIVE LINES".equals(mode)){
                 if(focus==0){showLiveLines();return;}
