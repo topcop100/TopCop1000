@@ -15,7 +15,7 @@ import java.net.*;
 
 public class MediaHubActivity extends Activity {
     static final int REQ_VIDEO=20, REQ_M3U=21;
-    int streamFocus=0; boolean showingPlaylist=false;
+    int streamFocus=0; boolean showingPlaylist=false; String stalkerBase="",stalkerMac="",stalkerToken="";
     final ArrayList<String> playlistNames=new ArrayList<>(), playlistUrls=new ArrayList<>();
     public static final String EXTRA_MODE="mode";
     @Override public void onCreate(Bundle b){super.onCreate(b);setContentView(new HubView());}
@@ -40,7 +40,12 @@ public class MediaHubActivity extends Activity {
             int first=Math.max(0,Math.min(streamFocus-3,Math.max(0,playlistNames.size()-7)));
             for(int row=0;row<7&&first+row<playlistNames.size();row++){int i=first+row;float y=h*.19f+row*h*.10f;RectF r=new RectF(w*.12f,y,w*.88f,y+h*.07f);p.setColor(i==streamFocus?Color.rgb(120,10,35):Color.rgb(42,42,50));c.drawRoundRect(r,18,18,p);p.setColor(Color.WHITE);p.setTextSize(h*.027f);String s=playlistNames.get(i);if(s.length()>58)s=s.substring(0,55)+"...";c.drawText(s,r.centerX(),r.centerY()+8,p);}
         }
-        void openStream(){ if(playlistUrls.isEmpty())return; String url=playlistUrls.get(streamFocus).trim(); if(url.startsWith("ffmpeg "))url=url.substring(7).trim(); int sp=url.indexOf(' '); if(sp>0&&url.substring(0,sp).indexOf("://")<0)url=url.substring(sp+1).trim(); FavoriteStore.add(MediaHubActivity.this,"livetv",playlistNames.get(streamFocus)+" | "+url); Intent v=new Intent(Intent.ACTION_VIEW,Uri.parse(url)); try{startActivity(v);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Stream-Player installiert",Toast.LENGTH_SHORT).show();} }
+        void openStream(){ if(playlistUrls.isEmpty())return; String url=playlistUrls.get(streamFocus).trim(); if("PORTALE".equals(mode)&&!stalkerToken.isEmpty()){resolveStalkerLink(url);return;} playResolvedStream(url); }
+        void playResolvedStream(String raw){String url=raw.trim();if(url.startsWith("ffmpeg "))url=url.substring(7).trim();int sp=url.indexOf(' ');if(sp>0&&url.substring(0,sp).indexOf("://")<0)url=url.substring(sp+1).trim();String cat="PORTALE".equals(mode)?"portals":"livetv";FavoriteStore.add(MediaHubActivity.this,cat,playlistNames.get(streamFocus)+" | "+url);Intent v=new Intent(Intent.ACTION_VIEW,Uri.parse(url));try{startActivity(v);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Stream-Player installiert",Toast.LENGTH_SHORT).show();}}
+        void resolveStalkerLink(String cmd){
+            if(cmd.startsWith("http://")||cmd.startsWith("https://")){playResolvedStream(cmd);return;}
+            new Thread(()->{HttpURLConnection con=null;try{String q=URLEncoder.encode(cmd,"UTF-8");URL u=new URL(stalkerBase+"/server/load.php?type=itv&action=create_link&cmd="+q+"&JsHttpRequest=1-xml");con=(HttpURLConnection)u.openConnection();con.setConnectTimeout(8000);con.setReadTimeout(12000);con.setRequestProperty("Authorization","Bearer "+stalkerToken);con.setRequestProperty("Cookie","mac="+stalkerMac.replace(":","%3A")+"; stb_lang=en; timezone=UTC");con.setRequestProperty("User-Agent","Mozilla/5.0 (QtEmbedded; U; Linux; C) MAG200 stbapp");if(con.getResponseCode()<200||con.getResponseCode()>=400)throw new IOException();StringBuilder sb=new StringBuilder();try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){String ln;while((ln=br.readLine())!=null)sb.append(ln);}java.util.regex.Matcher m=java.util.regex.Pattern.compile("\\\"cmd\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(sb.toString());if(!m.find())throw new IOException();String link=m.group(1).replace("\\/","/");runOnUiThread(()->playResolvedStream(link));}catch(Exception ex){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Stalker Stream-Link konnte nicht erstellt werden",Toast.LENGTH_SHORT).show());}finally{if(con!=null)con.disconnect();}}).start();
+        }
 
         void choose(){
             if(focus==items.length-1){finish();return;}
@@ -115,6 +120,7 @@ public class MediaHubActivity extends Activity {
         }
 
         void loadStalkerChannels(String base,String mac,String token){
+            stalkerBase=base;stalkerMac=mac;stalkerToken=token;
             new Thread(()->{
                 HttpURLConnection con=null;
                 try{
