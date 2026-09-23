@@ -48,6 +48,9 @@ public class MediaHubActivity extends Activity {
             if("VIDEO".equals(mode)&&focus==0){
                 Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_VIDEO);return;
             }
+            if("VIDEO".equals(mode)&&focus==1){askVideoUrl();return;}
+            if("VIDEO".equals(mode)&&focus==2){startActivity(new Intent(MediaHubActivity.this,FavoritesActivity.class));return;}
+            if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==3){startActivity(new Intent(MediaHubActivity.this,FavoritesActivity.class));return;}
             if("PORTALE".equals(mode)&&focus==1){
                 android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
                 String server=sp.getString("stalker_server",""), mac=sp.getString("stalker_mac","");
@@ -64,6 +67,13 @@ public class MediaHubActivity extends Activity {
             }
             Toast.makeText(MediaHubActivity.this,items[focus]+" vorbereitet",Toast.LENGTH_SHORT).show();
         }
+        void askVideoUrl(){
+            final EditText input=new EditText(MediaHubActivity.this);input.setHint("https://... Video URL");
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("VIDEO-URL").setView(input)
+                .setPositiveButton("Öffnen",(d,w)->{String url=input.getText().toString().trim();if(!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Ungültige Video-Adresse",Toast.LENGTH_SHORT).show();return;}FavoriteStore.add(MediaHubActivity.this,"video","VIDEO | "+url);Intent i=new Intent(Intent.ACTION_VIEW,Uri.parse(url));try{startActivity(i);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Videoplayer installiert",Toast.LENGTH_SHORT).show();}})
+                .setNegativeButton("Abbrechen",null).show();
+        }
+
         void importRemoteM3u(String url){
             Toast.makeText(MediaHubActivity.this,"Xtream Playlist wird geladen",Toast.LENGTH_SHORT).show();
             new Thread(()->{
