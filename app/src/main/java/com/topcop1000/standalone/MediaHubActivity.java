@@ -97,7 +97,7 @@ public class MediaHubActivity extends Activity {
                 if(url.isEmpty()) askXtream(); else importRemoteM3u(url);
                 return;
             }
-            Toast.makeText(MediaHubActivity.this,items[focus]+" vorbereitet",Toast.LENGTH_SHORT).show();
+            Toast.makeText(MediaHubActivity.this,"Funktion nicht verfügbar",Toast.LENGTH_SHORT).show();
         }
         void askVideoUrl(){
             final EditText input=new EditText(MediaHubActivity.this);input.setHint("https://... Video URL");
