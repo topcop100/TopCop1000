@@ -11,7 +11,7 @@ public class FavoritesActivity extends Activity {
  @Override public void onCreate(Bundle b){super.onCreate(b);setContentView(new FavView());}
  final class FavView extends View{
   final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-  final String[] categories={"MP3","VIDEO","LIVE TV","PORTALE"};
+  final String[] categories={"MP3 STREAMS","VIDEO","LIVE LINES","PORTALE (ALT)"};
   int category=0, focus=0; ArrayList<String> entries=new ArrayList<>();
   FavView(){super(FavoritesActivity.this);String wanted=getIntent().getStringExtra("category");if("video".equals(wanted))category=1;else if("livetv".equals(wanted))category=2;else if("portals".equals(wanted))category=3;reload();setFocusable(true);requestFocus();}
   String key(){return category==0?"mp3":category==1?"video":category==2?"livetv":"portals";}
