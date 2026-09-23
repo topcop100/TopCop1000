@@ -107,7 +107,7 @@ public class MediaHubActivity extends Activity {
                     int code=con.getResponseCode();
                     final boolean ok=code>=200&&code<400;
                     String token="";
-                    if(ok){try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){StringBuilder sb=new StringBuilder();String ln;while((ln=br.readLine())!=null)sb.append(ln);String body=sb.toString();int pos=body.indexOf("\\\"token\\\"");if(pos>=0){int colon=body.indexOf(':',pos),q1=body.indexOf('"',colon+1),q2=q1<0?-1:body.indexOf('"',q1+1);if(q1>=0&&q2>q1)token=body.substring(q1+1,q2);}}}
+                    if(ok){try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){StringBuilder sb=new StringBuilder();String ln;while((ln=br.readLine())!=null)sb.append(ln);String body=sb.toString();java.util.regex.Matcher tm=java.util.regex.Pattern.compile("\\\"token\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"").matcher(body);if(tm.find())token=tm.group(1);}}
                     final String finalToken=token;
                     if(!finalToken.isEmpty())getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_token",finalToken).apply();
                     runOnUiThread(()->{
