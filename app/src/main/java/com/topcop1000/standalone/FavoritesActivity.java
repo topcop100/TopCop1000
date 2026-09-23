@@ -13,7 +13,7 @@ public class FavoritesActivity extends Activity {
   final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
   final String[] categories={"MP3","VIDEO","LIVE TV","PORTALE"};
   int category=0, focus=0; ArrayList<String> entries=new ArrayList<>();
-  FavView(){super(FavoritesActivity.this);reload();setFocusable(true);requestFocus();}
+  FavView(){super(FavoritesActivity.this);String wanted=getIntent().getStringExtra("category");if("video".equals(wanted))category=1;else if("livetv".equals(wanted))category=2;else if("portals".equals(wanted))category=3;reload();setFocusable(true);requestFocus();}
   String key(){return category==0?"mp3":category==1?"video":category==2?"livetv":"portals";}
   void reload(){entries=FavoriteStore.list(FavoritesActivity.this,key());Collections.sort(entries,String.CASE_INSENSITIVE_ORDER);focus=Math.min(focus,Math.max(0,entries.size()-1));invalidate();}
   @Override protected void onDraw(Canvas c){c.drawColor(Color.rgb(5,5,8));int w=getWidth(),h=getHeight();p.setTypeface(Typeface.DEFAULT_BOLD);p.setTextAlign(Paint.Align.CENTER);
@@ -21,7 +21,7 @@ public class FavoritesActivity extends Activity {
    if(entries.isEmpty()){p.setColor(Color.LTGRAY);p.setTextSize(h*.035f);c.drawText("NOCH KEINE FAVORITEN",w/2f,h*.42f,p);}
    int first=Math.max(0,Math.min(focus-3,Math.max(0,entries.size()-6)));
    for(int row=0;row<6&&first+row<entries.size();row++){int i=first+row;float y=h*.20f+row*h*.105f;RectF r=new RectF(w*.14f,y,w*.86f,y+h*.075f);p.setColor(i==focus?Color.rgb(120,10,35):Color.rgb(42,42,50));c.drawRoundRect(r,20,20,p);p.setColor(Color.WHITE);p.setTextSize(h*.028f);String s=entries.get(i);if(s.length()>55)s=s.substring(0,52)+"...";c.drawText(s,r.centerX(),r.centerY()+9,p);}
-   p.setTextSize(h*.025f);p.setColor(Color.GRAY);c.drawText("◀ ▶ Kategorie   ·   MENU löscht Favorit   ·   BACK zurück",w/2f,h*.94f,p);
+   p.setTextSize(h*.025f);p.setColor(Color.GRAY);c.drawText("OK öffnet   ·   ◀ ▶ Kategorie   ·   MENU löscht   ·   BACK zurück",w/2f,h*.94f,p);
   }
   void openFavorite(String value){int sep=value.indexOf(" | ");if(sep<0){Toast.makeText(FavoritesActivity.this,"Favorit enthält keine Quelle",Toast.LENGTH_SHORT).show();return;}String url=value.substring(sep+3).trim();try{android.content.Intent i=new android.content.Intent(android.content.Intent.ACTION_VIEW,android.net.Uri.parse(url));startActivity(i);}catch(Exception e){Toast.makeText(FavoritesActivity.this,"Favorit kann nicht geöffnet werden",Toast.LENGTH_SHORT).show();}}
   @Override public boolean onKeyDown(int k,KeyEvent e){
