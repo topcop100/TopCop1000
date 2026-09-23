@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.TopCop" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:colorAccent">#ff1744</item>
+        <item name="android:windowBackground">#050507</item>
+    </style>
+</resources>
