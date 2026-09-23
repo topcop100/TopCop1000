@@ -3,6 +3,8 @@ package com.topcop1000.standalone;
 import android.app.Activity;
 import android.graphics.*;
 import android.os.Bundle;
+import android.content.*;
+import android.widget.Toast;
 import android.view.*;
 
 public class MainActivity extends Activity {
@@ -19,8 +21,9 @@ public class MainActivity extends Activity {
         int focus=0;
         boolean zombies=true;
         long start=System.currentTimeMillis(), lastInput=System.currentTimeMillis();
+        final android.content.SharedPreferences prefs=getSharedPreferences("topcop",MODE_PRIVATE);
 
-        GraveyardView(){ super(MainActivity.this); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
+        GraveyardView(){ super(MainActivity.this); zombies=prefs.getBoolean("zombies",true); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
 
         @Override protected void onDraw(Canvas c){
             int w=getWidth(),h=getHeight();
@@ -87,6 +90,11 @@ public class MainActivity extends Activity {
             else if(dy>0 && row==1) focus=10;
         }
 
+        void openTile(int i){
+            String name=labels[i];
+            Toast.makeText(MainActivity.this,name+" vorbereitet",Toast.LENGTH_SHORT).show();
+        }
+
         @Override public boolean onKeyDown(int key,KeyEvent e){
             lastInput=System.currentTimeMillis();
             if(key==KeyEvent.KEYCODE_DPAD_RIGHT) move(1,0);
@@ -95,7 +103,8 @@ public class MainActivity extends Activity {
             else if(key==KeyEvent.KEYCODE_DPAD_UP) move(0,-1);
             else if(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER){
                 if(focus==10) finish();
-                else if(focus==7) zombies=!zombies;
+                else if(focus==7){ zombies=!zombies; prefs.edit().putBoolean("zombies",zombies).apply(); Toast.makeText(MainActivity.this,"Zombie-Hintergrund: "+(zombies?"EIN":"AUS"),Toast.LENGTH_SHORT).show(); }
+                else openTile(focus);
             } else if(key==KeyEvent.KEYCODE_BACK){ finish(); }
             else return super.onKeyDown(key,e);
             invalidate(); return true;
