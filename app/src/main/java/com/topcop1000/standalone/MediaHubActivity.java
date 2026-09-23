@@ -101,7 +101,7 @@ public class MediaHubActivity extends Activity {
                 if(focus==1){addLiveLine();return;}
                 if(focus==2){editLiveLine();return;}
                 if(focus==3){deleteLiveLine();return;}
-                if(focus==4){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","livetv");startActivity(fav);return;}
+                if(focus==4){showLiveLineFavorites();return;}
             }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
             if("VIDEO".equals(mode)&&focus==0){
@@ -158,6 +158,27 @@ public class MediaHubActivity extends Activity {
                 new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setView(input).setPositiveButton("Speichern",(d2,w)->{String v=input.getText().toString().trim();int sep=v.indexOf('|');String url=(sep>=0?v.substring(sep+1):v).trim();if(v.isEmpty()||!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Format: Name | http(s)://...",Toast.LENGTH_SHORT).show();return;}liveLines.set(which,v);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line geändert",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
             }).show();
         }
+        void showLiveLineFavorites(){
+            loadLiveLines();
+            ArrayList<String> favs=new ArrayList<>();
+            for(String s:liveLines)if(getSharedPreferences("topcop_live_lines",MODE_PRIVATE).getBoolean("fav_"+s.hashCode(),false))favs.add(s);
+            if(favs.isEmpty()){Toast.makeText(MediaHubActivity.this,"Noch keine Live-Line-Favoriten",Toast.LENGTH_SHORT).show();return;}
+            final String[] a=favs.toArray(new String[0]);
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("LIVE-LINE FAVORITEN").setItems(a,(d,which)->{
+                String entry=a[which];int sep=entry.indexOf('|');String url=(sep>=0?entry.substring(sep+1):entry).trim();
+                try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Line konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}
+            }).setNegativeButton("Schließen",null).show();
+        }
+        void toggleLiveLineFavorite(){
+            loadLiveLines();if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Keine Line vorhanden",Toast.LENGTH_SHORT).show();return;}
+            final String[] a=liveLines.toArray(new String[0]);
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("FAVORIT AN/AUS").setItems(a,(d,which)->{
+                String key="fav_"+a[which].hashCode();android.content.SharedPreferences sp=getSharedPreferences("topcop_live_lines",MODE_PRIVATE);
+                boolean next=!sp.getBoolean(key,false);sp.edit().putBoolean(key,next).apply();
+                Toast.makeText(MediaHubActivity.this,next?"Favorit gespeichert":"Favorit entfernt",Toast.LENGTH_SHORT).show();
+            }).setNegativeButton("Abbrechen",null).show();
+        }
+
         void deleteLiveLine(){
             loadLiveLines();if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Keine Line zum Löschen",Toast.LENGTH_SHORT).show();return;}
             final String[] a=liveLines.toArray(new String[0]);new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE LÖSCHEN").setItems(a,(d,which)->{liveLines.remove(which);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line gelöscht",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
@@ -287,6 +308,7 @@ public class MediaHubActivity extends Activity {
 
         @Override public boolean onKeyDown(int k,KeyEvent e){
             if(!showingPlaylist&&"VIDEO".equals(mode)&&k==KeyEvent.KEYCODE_MENU&&focus==1){addVideoUrlFavorite();return true;}
+            if(!showingPlaylist&&"LIVE LINES".equals(mode)&&k==KeyEvent.KEYCODE_MENU){toggleLiveLineFavorite();return true;}
             if(showingPlaylist){
                 if(k==KeyEvent.KEYCODE_DPAD_DOWN)streamFocus=Math.min(playlistNames.size()-1,streamFocus+1);
                 else if(k==KeyEvent.KEYCODE_DPAD_UP)streamFocus=Math.max(0,streamFocus-1);
