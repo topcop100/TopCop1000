@@ -18,7 +18,15 @@ public class MediaHubActivity extends Activity {
     int streamFocus=0; boolean showingPlaylist=false; String stalkerBase="",stalkerMac="",stalkerToken=""; HubView hubView;
     final ArrayList<String> playlistNames=new ArrayList<>(), playlistUrls=new ArrayList<>();
     public static final String EXTRA_MODE="mode";
-    @Override public void onCreate(Bundle b){super.onCreate(b);hubView=new HubView();setContentView(hubView);String raw=getIntent().getStringExtra("playlist_uri");if(raw!=null&&!raw.isEmpty())parseM3u(Uri.parse(raw));}
+    @Override public void onCreate(Bundle b){super.onCreate(b);hubView=new HubView();setContentView(hubView);String raw=getIntent().getStringExtra("playlist_uri");if(raw!=null&&!raw.isEmpty())parseM3u(Uri.parse(raw));String favCmd=getIntent().getStringExtra("favorite_stalker_cmd");if(favCmd!=null&&!favCmd.isEmpty())openSavedStalkerFavorite(favCmd);}
+    void openSavedStalkerFavorite(String cmd){
+        android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
+        String server=sp.getString("stalker_server",""),mac=sp.getString("stalker_mac",""),token=sp.getString("stalker_token","");
+        String base=PortalUrlBuilder.normalizeServer(server);
+        if(base.isEmpty()||mac.isEmpty()||token.isEmpty()){Toast.makeText(this,"Stalker-Profil oder Token fehlt",Toast.LENGTH_SHORT).show();return;}
+        stalkerBase=base;stalkerMac=mac;stalkerToken=token;
+        hubView.resolveStalkerLink(cmd);
+    }
     final class HubView extends View{
         final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
         final String mode; final String[] items; int focus=0;
