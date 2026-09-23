@@ -179,7 +179,7 @@ public class MediaHubActivity extends Activity {
         void askStalker(){
             final EditText input=new EditText(MediaHubActivity.this); input.setHint("Server URL | MAC");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("Stalker / MAC").setView(input)
-                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",2); if(a.length==2){PortalProfile p=new PortalProfile(PortalProfile.Type.STALKER,"Stalker",a[0].trim(),"",a[1].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_server",p.server).putString("stalker_mac",p.secret).remove("stalker_token").apply();Toast.makeText(MediaHubActivity.this,"Stalker-Profil gespeichert · Verbindung wird geprüft",Toast.LENGTH_SHORT).show();testStalker(p.server,p.secret);}}})
+                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",2); if(a.length==2){PortalProfile p=new PortalProfile(PortalProfile.Type.STALKER,"Stalker",a[0].trim(),"",a[1].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("stalker_server",p.server).putString("stalker_mac",p.secret.toUpperCase(java.util.Locale.ROOT)).remove("stalker_token").apply();Toast.makeText(MediaHubActivity.this,"Stalker-Profil gespeichert · Verbindung wird geprüft",Toast.LENGTH_SHORT).show();testStalker(p.server,p.secret.toUpperCase(java.util.Locale.ROOT));}else Toast.makeText(MediaHubActivity.this,"Format: Server URL | 00:1A:79:XX:XX:XX",Toast.LENGTH_SHORT).show();}})
                 .setNegativeButton("Abbrechen",null).show();
         }
         void askXtream(){
