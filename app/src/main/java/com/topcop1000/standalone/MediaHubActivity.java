@@ -133,7 +133,7 @@ public class MediaHubActivity extends Activity {
                     StringBuilder sb=new StringBuilder();try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){String ln;while((ln=br.readLine())!=null)sb.append(ln);}
                     String body=sb.toString();
                     final ArrayList<String> names=new ArrayList<>(), cmds=new ArrayList<>();
-                    java.util.regex.Matcher m=java.util.regex.Pattern.compile("\\\\"name\\\\\"\\s*:\\s*\\\\\"([^\\\\\"]*)\\\\\"[\\s\\S]*?\\\\\"cmd\\\\\"\\s*:\\s*\\\\\"([^\\\\\"]*)\\\\\"").matcher(body);
+                    java.util.regex.Matcher m=java.util.regex.Pattern.compile("\\\"name\\\"\\s*:\\s*\\\"([^\\\"]*)\\\"[\\s\\S]*?\\\"cmd\\\"\\s*:\\s*\\\"([^\\\"]*)\\\"").matcher(body);
                     while(m.find()){String n=m.group(1).replace("\\\\/","/");String cmd=m.group(2).replace("\\\\/","/");if(!n.isEmpty()&&!cmd.isEmpty()){names.add(n);cmds.add(cmd);}}
                     runOnUiThread(()->{playlistNames.clear();playlistUrls.clear();playlistNames.addAll(names);playlistUrls.addAll(cmds);showingPlaylist=!playlistNames.isEmpty();streamFocus=0;Toast.makeText(MediaHubActivity.this,playlistNames.isEmpty()?"Stalker verbunden · keine Sender erkannt":playlistNames.size()+" Stalker Sender geladen",Toast.LENGTH_SHORT).show();invalidate();});
                 }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Stalker Senderabfrage fehlgeschlagen",Toast.LENGTH_SHORT).show());}
