@@ -58,7 +58,8 @@ public class Mp3CenterActivity extends Activity {
             for(int i=0;i<items.length;i++){p.setColor(i==focus?Color.rgb(120,10,35):Color.rgb(42,42,50));RectF r=new RectF(getWidth()*.18f,y+i*getHeight()*.105f,getWidth()*.82f,y+i*getHeight()*.105f+getHeight()*.075f);c.drawRoundRect(r,20,20,p);p.setTextSize(getHeight()*.035f);p.setColor(Color.WHITE);c.drawText(items[i],r.centerX(),r.centerY()+10,p);}
         }
         @Override public boolean onKeyDown(int k,KeyEvent e){
-            if((k==KeyEvent.KEYCODE_MENU||k==KeyEvent.KEYCODE_BUTTON_Y)&&(focus==0||focus==1)){configureStream(focus);return true;}
+            if(k==KeyEvent.KEYCODE_MENU&&(focus==0||focus==1)){configureStream(focus);return true;}
+            if(k==KeyEvent.KEYCODE_BUTTON_Y&&(focus==0||focus==1)){addCurrentFavorite(focus);return true;}
             if(k==KeyEvent.KEYCODE_DPAD_DOWN)focus=Math.min(items.length-1,focus+1);
             else if(k==KeyEvent.KEYCODE_DPAD_UP)focus=Math.max(0,focus-1);
             else if(k==KeyEvent.KEYCODE_BACK){finish();return true;}
