@@ -119,7 +119,7 @@ public class MediaHubActivity extends Activity {
             new Thread(()->{
                 try{
                     HttpURLConnection con=(HttpURLConnection)new URL(url).openConnection();con.setConnectTimeout(8000);con.setReadTimeout(12000);con.setInstanceFollowRedirects(true);
-                    if(con.getResponseCode()<200||con.getResponseCode()>=400){con.disconnect();throw new IOException("HTTP "+con.getResponseCode());}
+                    int code=con.getResponseCode();if(code<200||code>=400){con.disconnect();throw new IOException("HTTP "+code);}
                     final ArrayList<String> names=new ArrayList<>(), urls=new ArrayList<>();
                     try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){
                         String line,name=null;while((line=br.readLine())!=null){line=line.trim();if(line.startsWith("#EXTINF:")){int comma=line.indexOf(",");name=comma>=0?line.substring(comma+1).trim():"STREAM";}else if(!line.isEmpty()&&!line.startsWith("#")){names.add(name==null?"STREAM "+(names.size()+1):name);urls.add(line);name=null;}}
