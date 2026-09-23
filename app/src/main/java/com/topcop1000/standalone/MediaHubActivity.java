@@ -37,6 +37,7 @@ public class MediaHubActivity extends Activity {
         @Override protected void onDraw(Canvas c){
             c.drawColor(Color.rgb(5,5,8)); int w=getWidth(),h=getHeight();
             p.setTypeface(Typeface.DEFAULT_BOLD);p.setTextAlign(Paint.Align.CENTER);
+            if(!showingPlaylist&&"VIDEO".equals(mode)&&k==KeyEvent.KEYCODE_MENU&&focus==1){addVideoUrlFavorite();return true;}
             if(showingPlaylist){ drawPlaylist(c,w,h); return; }
             p.setColor(Color.rgb(255,30,80));p.setTextSize(h*.07f);c.drawText(mode,w/2f,h*.15f,p);
             for(int i=0;i<items.length;i++){float y=h*.28f+i*h*.12f;RectF r=new RectF(w*.18f,y,w*.82f,y+h*.085f);
@@ -84,7 +85,15 @@ public class MediaHubActivity extends Activity {
         void askVideoUrl(){
             final EditText input=new EditText(MediaHubActivity.this);input.setHint("https://... Video URL");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("VIDEO-URL").setView(input)
-                .setPositiveButton("Öffnen",(d,w)->{String url=input.getText().toString().trim();if(!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Ungültige Video-Adresse",Toast.LENGTH_SHORT).show();return;}FavoriteStore.add(MediaHubActivity.this,"video","VIDEO | "+url);Intent i=new Intent(Intent.ACTION_VIEW,Uri.parse(url));try{startActivity(i);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Videoplayer installiert",Toast.LENGTH_SHORT).show();}})
+                .setPositiveButton("Öffnen",(d,w)->{String url=input.getText().toString().trim();if(!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Ungültige Video-Adresse",Toast.LENGTH_SHORT).show();return;}Intent i=new Intent(Intent.ACTION_VIEW,Uri.parse(url));try{startActivity(i);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Videoplayer installiert",Toast.LENGTH_SHORT).show();}})
+                .setNegativeButton("Abbrechen",null).show();
+        }
+
+
+        void addVideoUrlFavorite(){
+            final EditText input=new EditText(MediaHubActivity.this);input.setHint("https://... Video URL");
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("VIDEO-FAVORIT").setView(input)
+                .setPositiveButton("Speichern",(d,w)->{String url=input.getText().toString().trim();if(!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Ungültige Video-Adresse",Toast.LENGTH_SHORT).show();return;}FavoriteStore.add(MediaHubActivity.this,"video","VIDEO | "+url);Toast.makeText(MediaHubActivity.this,"Video-Favorit gespeichert",Toast.LENGTH_SHORT).show();})
                 .setNegativeButton("Abbrechen",null).show();
         }
 
