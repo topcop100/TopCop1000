@@ -18,7 +18,7 @@ public class MediaHubActivity extends Activity {
     int streamFocus=0; boolean showingPlaylist=false; String stalkerBase="",stalkerMac="",stalkerToken="";
     final ArrayList<String> playlistNames=new ArrayList<>(), playlistUrls=new ArrayList<>();
     public static final String EXTRA_MODE="mode";
-    @Override public void onCreate(Bundle b){super.onCreate(b);setContentView(new HubView());}
+    @Override public void onCreate(Bundle b){super.onCreate(b);setContentView(new HubView());String raw=getIntent().getStringExtra("playlist_uri");if(raw!=null&&!raw.isEmpty())parseM3u(Uri.parse(raw));}
     final class HubView extends View{
         final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
         final String mode; final String[] items; int focus=0;
