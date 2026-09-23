@@ -95,6 +95,8 @@ public class MainActivity extends Activity {
             if(i==1||i==2||i==3){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,i==1?"VIDEO":(i==2?"LIVE TV":"PORTALE")); startActivity(x); return; }
             if(i==4){ startActivity(new Intent(MainActivity.this,AppsActivity.class)); return; }
             if(i==5||i==6){ Intent x=new Intent(MainActivity.this,FilesToolsActivity.class); x.putExtra(FilesToolsActivity.EXTRA_MODE,i==5?"DATEIEN":"TOOLS"); startActivity(x); return; }
+            if(i==8){ startActivity(new Intent(MainActivity.this,FavoritesActivity.class)); return; }
+            if(i==9){ Toast.makeText(MainActivity.this,"RESERVE – frei für spätere Funktion",Toast.LENGTH_SHORT).show(); return; }
             String name=labels[i];
             Toast.makeText(MainActivity.this,name+" vorbereitet",Toast.LENGTH_SHORT).show();
         }
