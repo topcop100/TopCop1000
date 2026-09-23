@@ -32,6 +32,22 @@ public class Mp3CenterActivity extends Activity {
         }catch(IOException e){ Toast.makeText(this,"Ungültige Audioquelle",Toast.LENGTH_SHORT).show(); }
     }
 
+
+    void configureStream(int slot){
+        final SharedPreferences prefs=getSharedPreferences("topcop",MODE_PRIVATE);
+        final EditText input=new EditText(this); input.setHint("https://..."); input.setText(prefs.getString(streamKeys[slot],""));
+        new AlertDialog.Builder(this).setTitle("STREAM "+(slot+1)+" BEARBEITEN").setView(input)
+            .setPositiveButton("Speichern",(d,w)->{String url=input.getText().toString().trim();if(!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(this,"Ungültige Stream-Adresse",Toast.LENGTH_SHORT).show();return;}prefs.edit().putString(streamKeys[slot],url).apply();Toast.makeText(this,"Stream gespeichert",Toast.LENGTH_SHORT).show();})
+            .setNegativeButton("Abbrechen",null).show();
+    }
+
+    void addCurrentFavorite(int slot){
+        String url=getSharedPreferences("topcop",MODE_PRIVATE).getString(streamKeys[slot],"").trim();
+        if(url.isEmpty()){Toast.makeText(this,"Noch kein Stream hinterlegt",Toast.LENGTH_SHORT).show();return;}
+        FavoriteStore.add(this,"mp3","STREAM "+(slot+1)+" | "+url);
+        Toast.makeText(this,"MP3-Favorit gespeichert",Toast.LENGTH_SHORT).show();
+    }
+
     @Override protected void onActivityResult(int req,int res,Intent data){
         super.onActivityResult(req,res,data);
         if(req==REQ_AUDIO&&res==RESULT_OK&&data!=null&&data.getData()!=null){
@@ -67,8 +83,8 @@ public class Mp3CenterActivity extends Activity {
                 if(focus==0||focus==1){playSavedStream(focus);}
                 else if(focus==4&&player!=null){player.stop();player.release();player=null;}
                 else if(focus==2){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("audio/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_AUDIO); }
+                else if(focus==3){startActivity(new Intent(Mp3CenterActivity.this,FavoritesActivity.class));}
                 else if(focus==5)finish();
-                else Toast.makeText(Mp3CenterActivity.this,items[focus]+" vorbereitet",Toast.LENGTH_SHORT).show();
             }else return super.onKeyDown(k,e); invalidate();return true;
         }
     }
