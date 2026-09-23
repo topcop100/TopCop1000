@@ -40,7 +40,7 @@ public class MediaHubActivity extends Activity {
             int first=Math.max(0,Math.min(streamFocus-3,Math.max(0,playlistNames.size()-7)));
             for(int row=0;row<7&&first+row<playlistNames.size();row++){int i=first+row;float y=h*.19f+row*h*.10f;RectF r=new RectF(w*.12f,y,w*.88f,y+h*.07f);p.setColor(i==streamFocus?Color.rgb(120,10,35):Color.rgb(42,42,50));c.drawRoundRect(r,18,18,p);p.setColor(Color.WHITE);p.setTextSize(h*.027f);String s=playlistNames.get(i);if(s.length()>58)s=s.substring(0,55)+"...";c.drawText(s,r.centerX(),r.centerY()+8,p);}
         }
-        void openStream(){ if(playlistUrls.isEmpty())return; String url=playlistUrls.get(streamFocus); FavoriteStore.add(MediaHubActivity.this,"livetv",playlistNames.get(streamFocus)+" | "+url); Intent v=new Intent(Intent.ACTION_VIEW,Uri.parse(url)); try{startActivity(v);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Stream-Player installiert",Toast.LENGTH_SHORT).show();} }
+        void openStream(){ if(playlistUrls.isEmpty())return; String url=playlistUrls.get(streamFocus).trim(); if(url.startsWith("ffmpeg "))url=url.substring(7).trim(); int sp=url.indexOf(' '); if(sp>0&&url.substring(0,sp).indexOf("://")<0)url=url.substring(sp+1).trim(); FavoriteStore.add(MediaHubActivity.this,"livetv",playlistNames.get(streamFocus)+" | "+url); Intent v=new Intent(Intent.ACTION_VIEW,Uri.parse(url)); try{startActivity(v);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Stream-Player installiert",Toast.LENGTH_SHORT).show();} }
 
         void choose(){
             if(focus==items.length-1){finish();return;}
@@ -115,9 +115,11 @@ public class MediaHubActivity extends Activity {
                     con.setRequestProperty("User-Agent","Mozilla/5.0 (QtEmbedded; U; Linux; C) MAG200 stbapp");
                     if(con.getResponseCode()<200||con.getResponseCode()>=400)throw new IOException("HTTP "+con.getResponseCode());
                     StringBuilder sb=new StringBuilder();try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){String ln;while((ln=br.readLine())!=null)sb.append(ln);}
-                    String body=sb.toString(); int count=0,pos=0; while((pos=body.indexOf("\\\"name\\\"",pos))>=0){count++;pos+=6;}
-                    final int channels=count;
-                    runOnUiThread(()->Toast.makeText(MediaHubActivity.this,channels>0?channels+" Stalker Sender erkannt":"Stalker verbunden · keine Sender erkannt",Toast.LENGTH_SHORT).show());
+                    String body=sb.toString();
+                    final ArrayList<String> names=new ArrayList<>(), cmds=new ArrayList<>();
+                    java.util.regex.Matcher m=java.util.regex.Pattern.compile("\\\\"name\\\\\"\\s*:\\s*\\\\\"([^\\\\\"]*)\\\\\"[\\s\\S]*?\\\\\"cmd\\\\\"\\s*:\\s*\\\\\"([^\\\\\"]*)\\\\\"").matcher(body);
+                    while(m.find()){String n=m.group(1).replace("\\\\/","/");String cmd=m.group(2).replace("\\\\/","/");if(!n.isEmpty()&&!cmd.isEmpty()){names.add(n);cmds.add(cmd);}}
+                    runOnUiThread(()->{playlistNames.clear();playlistUrls.clear();playlistNames.addAll(names);playlistUrls.addAll(cmds);showingPlaylist=!playlistNames.isEmpty();streamFocus=0;Toast.makeText(MediaHubActivity.this,playlistNames.isEmpty()?"Stalker verbunden · keine Sender erkannt":playlistNames.size()+" Stalker Sender geladen",Toast.LENGTH_SHORT).show();invalidate();});
                 }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Stalker Senderabfrage fehlgeschlagen",Toast.LENGTH_SHORT).show());}
                 finally{if(con!=null)con.disconnect();}
             }).start();
