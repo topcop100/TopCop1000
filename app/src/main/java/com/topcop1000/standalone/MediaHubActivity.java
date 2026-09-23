@@ -15,10 +15,10 @@ import java.net.*;
 
 public class MediaHubActivity extends Activity {
     static final int REQ_VIDEO=20, REQ_M3U=21;
-    int streamFocus=0; boolean showingPlaylist=false; String stalkerBase="",stalkerMac="",stalkerToken="";
+    int streamFocus=0; boolean showingPlaylist=false; String stalkerBase="",stalkerMac="",stalkerToken=""; HubView hubView;
     final ArrayList<String> playlistNames=new ArrayList<>(), playlistUrls=new ArrayList<>();
     public static final String EXTRA_MODE="mode";
-    @Override public void onCreate(Bundle b){super.onCreate(b);setContentView(new HubView());String raw=getIntent().getStringExtra("playlist_uri");if(raw!=null&&!raw.isEmpty())parseM3u(Uri.parse(raw));}
+    @Override public void onCreate(Bundle b){super.onCreate(b);hubView=new HubView();setContentView(hubView);String raw=getIntent().getStringExtra("playlist_uri");if(raw!=null&&!raw.isEmpty())parseM3u(Uri.parse(raw));}
     final class HubView extends View{
         final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
         final String mode; final String[] items; int focus=0;
@@ -171,7 +171,7 @@ public class MediaHubActivity extends Activity {
     }
     void parseM3u(Uri u){ playlistNames.clear(); playlistUrls.clear(); try(BufferedReader br=new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(u)))){String line,name=null; while((line=br.readLine())!=null){line=line.trim(); if(line.startsWith("#EXTINF:")){int comma=line.indexOf(","); name=comma>=0?line.substring(comma+1).trim():"STREAM";} else if(!line.isEmpty()&&!line.startsWith("#")){playlistNames.add(name==null?"STREAM "+(playlistNames.size()+1):name);playlistUrls.add(line);name=null;}} showingPlaylist=!playlistUrls.isEmpty(); streamFocus=0; Toast.makeText(this,playlistUrls.size()+" Streams eingelesen",Toast.LENGTH_SHORT).show(); invalidateHub();}catch(Exception e){Toast.makeText(this,"Playlist konnte nicht gelesen werden",Toast.LENGTH_SHORT).show();}}
 
-    void invalidateHub(){ View v=findViewById(android.R.id.content); if(v!=null)v.invalidate(); }
+    void invalidateHub(){ if(hubView!=null)hubView.invalidate(); }
 
     @Override protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);
         if(req==REQ_M3U&&res==RESULT_OK&&data!=null&&data.getData()!=null){parseM3u(data.getData());return;}
