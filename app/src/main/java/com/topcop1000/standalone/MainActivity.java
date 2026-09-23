@@ -134,7 +134,7 @@ public class MainActivity extends Activity {
                 else if(editMode) toggleVisibility();
                 else if(visible[tileAt(focus)]) openTile(tileAt(focus));
                 else Toast.makeText(MainActivity.this,"Kachel ist ausgeblendet · MENU zum Bearbeiten",Toast.LENGTH_SHORT).show();
-            } else if(key==KeyEvent.KEYCODE_MENU){editMode=!editMode;if(focus==10)focus=9;Toast.makeText(MainActivity.this,editMode?"BEARBEITEN: D-Pad verschiebt · OK blendet ein/aus":"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}
+            } else if(key==KeyEvent.KEYCODE_MENU){if(focus==10&&!editMode){startActivity(new Intent(MainActivity.this,SettingsActivity.class));return true;}editMode=!editMode;if(focus==10)focus=9;Toast.makeText(MainActivity.this,editMode?"BEARBEITEN: D-Pad verschiebt · OK blendet ein/aus":"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}
             else if(key==KeyEvent.KEYCODE_BACK){if(editMode){editMode=false;Toast.makeText(MainActivity.this,"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}else finish(); }
             else return super.onKeyDown(key,e);
             invalidate(); return true;
