@@ -80,7 +80,6 @@ public class Mp3CenterActivity extends Activity {
                     .setItems(new String[]{"BEARBEITEN","ALS FAVORIT SPEICHERN"},(d,which)->{if(which==0)configureStream(slot);else addCurrentFavorite(slot);})
                     .show();return true;
             }
-            if(k==KeyEvent.KEYCODE_BUTTON_Y&&(focus==0||focus==1)){addCurrentFavorite(focus);return true;}
             if(k==KeyEvent.KEYCODE_DPAD_DOWN)focus=Math.min(items.length-1,focus+1);
             else if(k==KeyEvent.KEYCODE_DPAD_UP)focus=Math.max(0,focus-1);
             else if(k==KeyEvent.KEYCODE_BACK){finish();return true;}
