@@ -117,13 +117,14 @@ public class MediaHubActivity extends Activity {
         void importRemoteM3u(String url){
             Toast.makeText(MediaHubActivity.this,"Xtream Playlist wird geladen",Toast.LENGTH_SHORT).show();
             new Thread(()->{
-                playlistNames.clear();playlistUrls.clear();
                 try{
                     HttpURLConnection con=(HttpURLConnection)new URL(url).openConnection();con.setConnectTimeout(8000);con.setReadTimeout(12000);con.setInstanceFollowRedirects(true);
+                    if(con.getResponseCode()<200||con.getResponseCode()>=400){con.disconnect();throw new IOException("HTTP "+con.getResponseCode());}
+                    final ArrayList<String> names=new ArrayList<>(), urls=new ArrayList<>();
                     try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){
-                        String line,name=null;while((line=br.readLine())!=null){line=line.trim();if(line.startsWith("#EXTINF:")){int comma=line.indexOf(",");name=comma>=0?line.substring(comma+1).trim():"STREAM";}else if(!line.isEmpty()&&!line.startsWith("#")){playlistNames.add(name==null?"STREAM "+(playlistNames.size()+1):name);playlistUrls.add(line);name=null;}}
+                        String line,name=null;while((line=br.readLine())!=null){line=line.trim();if(line.startsWith("#EXTINF:")){int comma=line.indexOf(",");name=comma>=0?line.substring(comma+1).trim():"STREAM";}else if(!line.isEmpty()&&!line.startsWith("#")){names.add(name==null?"STREAM "+(names.size()+1):name);urls.add(line);name=null;}}
                     } finally {con.disconnect();}
-                    runOnUiThread(()->{showingPlaylist=!playlistUrls.isEmpty();streamFocus=0;Toast.makeText(MediaHubActivity.this,playlistUrls.size()+" Xtream Streams geladen",Toast.LENGTH_SHORT).show();invalidate();});
+                    runOnUiThread(()->{playlistNames.clear();playlistUrls.clear();playlistNames.addAll(names);playlistUrls.addAll(urls);showingPlaylist=!playlistUrls.isEmpty();streamFocus=0;Toast.makeText(MediaHubActivity.this,playlistUrls.size()+" Xtream Streams geladen",Toast.LENGTH_SHORT).show();invalidate();});
                 }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Xtream Verbindung fehlgeschlagen",Toast.LENGTH_SHORT).show());}
             }).start();
         }
