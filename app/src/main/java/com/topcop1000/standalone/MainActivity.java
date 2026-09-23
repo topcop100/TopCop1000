@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
             if(dx!=0){ col=Math.max(0,Math.min(4,col+dx)); focus=row*5+col; }
             else if(dy<0 && row==1) focus=col;
             else if(dy>0 && row==0) focus=5+col;
-            else if(dy>0 && row==1) focus=10;
+            else if(dy>0 && row==1 && col==4) focus=10;
         }
 
         void openTile(int i){
