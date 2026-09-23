@@ -54,8 +54,8 @@ public class MediaHubActivity extends Activity {
                 Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_VIDEO);return;
             }
             if("VIDEO".equals(mode)&&focus==1){askVideoUrl();return;}
-            if("VIDEO".equals(mode)&&focus==2){startActivity(new Intent(MediaHubActivity.this,FavoritesActivity.class));return;}
-            if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==3){startActivity(new Intent(MediaHubActivity.this,FavoritesActivity.class));return;}
+            if("VIDEO".equals(mode)&&focus==2){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","video");startActivity(fav);return;}
+            if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==3){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","PORTALE".equals(mode)?"portals":"livetv");startActivity(fav);return;}
             if("PORTALE".equals(mode)&&focus==1){
                 android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
                 String server=sp.getString("stalker_server",""), mac=sp.getString("stalker_mac","");
