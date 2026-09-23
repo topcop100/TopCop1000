@@ -314,7 +314,7 @@ public class MediaHubActivity extends Activity {
 
         @Override public boolean onKeyDown(int k,KeyEvent e){
             if(!showingPlaylist&&"VIDEO".equals(mode)&&k==KeyEvent.KEYCODE_MENU&&focus==1){addVideoUrlFavorite();return true;}
-            if(!showingPlaylist&&"LIVE LINES".equals(mode)&&k==KeyEvent.KEYCODE_MENU){toggleLiveLineFavorite();return true;}
+            if(!showingPlaylist&&"LIVE LINES".equals(mode)&&k==KeyEvent.KEYCODE_MENU&&focus==0){toggleLiveLineFavorite();return true;}
             if(showingPlaylist){
                 if(k==KeyEvent.KEYCODE_DPAD_DOWN)streamFocus=Math.min(playlistNames.size()-1,streamFocus+1);
                 else if(k==KeyEvent.KEYCODE_DPAD_UP)streamFocus=Math.max(0,streamFocus-1);
