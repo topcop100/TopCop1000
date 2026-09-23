@@ -337,7 +337,7 @@ public class MediaHubActivity extends Activity {
                 if(k==KeyEvent.KEYCODE_DPAD_DOWN)streamFocus=Math.min(playlistNames.size()-1,streamFocus+1);
                 else if(k==KeyEvent.KEYCODE_DPAD_UP)streamFocus=Math.max(0,streamFocus-1);
                 else if(k==KeyEvent.KEYCODE_DPAD_CENTER||k==KeyEvent.KEYCODE_ENTER)openStream();
-                else if(k==KeyEvent.KEYCODE_MENU&&!playlistUrls.isEmpty()){String url=playlistUrls.get(streamFocus).trim();String cat="PORTALE".equals(mode)?"portals":"livetv";FavoriteStore.add(MediaHubActivity.this,cat,playlistNames.get(streamFocus)+" | "+url);Toast.makeText(MediaHubActivity.this,"Favorit gespeichert",Toast.LENGTH_SHORT).show();}
+                else if(k==KeyEvent.KEYCODE_MENU&&!playlistUrls.isEmpty()){String url=playlistUrls.get(streamFocus).trim();String cat="PORTALE".equals(mode)?"portals":"livetv";String fav=playlistNames.get(streamFocus)+" | "+url;java.util.ArrayList<String> saved=FavoriteStore.list(MediaHubActivity.this,cat);if(saved.contains(fav)){FavoriteStore.remove(MediaHubActivity.this,cat,fav);Toast.makeText(MediaHubActivity.this,"Favorit entfernt",Toast.LENGTH_SHORT).show();}else{FavoriteStore.add(MediaHubActivity.this,cat,fav);Toast.makeText(MediaHubActivity.this,"Favorit gespeichert",Toast.LENGTH_SHORT).show();}}
                 else if(k==KeyEvent.KEYCODE_BACK){showingPlaylist=false;invalidate();return true;} else return super.onKeyDown(k,e);
                 invalidate();return true;
             }
