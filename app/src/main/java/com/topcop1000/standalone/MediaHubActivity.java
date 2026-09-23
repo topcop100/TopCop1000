@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.app.AlertDialog;
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 public class MediaHubActivity extends Activity {
     static final int REQ_VIDEO=20, REQ_M3U=21;
@@ -48,9 +49,30 @@ public class MediaHubActivity extends Activity {
                 Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("video/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_VIDEO);return;
             }
             if("PORTALE".equals(mode)&&focus==1){ askStalker(); return; }
-            if("PORTALE".equals(mode)&&focus==2){ askXtream(); return; }
+            if("PORTALE".equals(mode)&&focus==2){
+                android.content.SharedPreferences sp=getSharedPreferences("topcop_portals",MODE_PRIVATE);
+                String server=sp.getString("xtream_server",""), user=sp.getString("xtream_user",""), secret=sp.getString("xtream_secret","");
+                PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",server,user,secret);
+                String url=PortalUrlBuilder.xtreamPlaylist(p);
+                if(url.isEmpty()) askXtream(); else importRemoteM3u(url);
+                return;
+            }
             Toast.makeText(MediaHubActivity.this,items[focus]+" vorbereitet",Toast.LENGTH_SHORT).show();
         }
+        void importRemoteM3u(String url){
+            Toast.makeText(MediaHubActivity.this,"Xtream Playlist wird geladen",Toast.LENGTH_SHORT).show();
+            new Thread(()->{
+                playlistNames.clear();playlistUrls.clear();
+                try{
+                    HttpURLConnection con=(HttpURLConnection)new URL(url).openConnection();con.setConnectTimeout(8000);con.setReadTimeout(12000);con.setInstanceFollowRedirects(true);
+                    try(BufferedReader br=new BufferedReader(new InputStreamReader(con.getInputStream()))){
+                        String line,name=null;while((line=br.readLine())!=null){line=line.trim();if(line.startsWith("#EXTINF:")){int comma=line.indexOf(",");name=comma>=0?line.substring(comma+1).trim():"STREAM";}else if(!line.isEmpty()&&!line.startsWith("#")){playlistNames.add(name==null?"STREAM "+(playlistNames.size()+1):name);playlistUrls.add(line);name=null;}}
+                    } finally {con.disconnect();}
+                    runOnUiThread(()->{showingPlaylist=!playlistUrls.isEmpty();streamFocus=0;Toast.makeText(MediaHubActivity.this,playlistUrls.size()+" Xtream Streams geladen",Toast.LENGTH_SHORT).show();invalidate();});
+                }catch(Exception e){runOnUiThread(()->Toast.makeText(MediaHubActivity.this,"Xtream Verbindung fehlgeschlagen",Toast.LENGTH_SHORT).show());}
+            }).start();
+        }
+
         void askStalker(){
             final EditText input=new EditText(MediaHubActivity.this); input.setHint("Server URL | MAC");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("Stalker / MAC").setView(input)
