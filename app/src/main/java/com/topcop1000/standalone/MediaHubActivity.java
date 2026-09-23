@@ -185,7 +185,7 @@ public class MediaHubActivity extends Activity {
         void askXtream(){
             final EditText input=new EditText(MediaHubActivity.this); input.setHint("Server URL | Benutzer | Passwort");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("Xtream").setView(input)
-                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",3); if(a.length==3){PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",a[0].trim(),a[1].trim(),a[2].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("xtream_server",p.server).putString("xtream_user",p.user).putString("xtream_secret",p.secret).apply();Toast.makeText(MediaHubActivity.this,"Xtream-Profil gespeichert · Playlist wird geladen",Toast.LENGTH_SHORT).show();String url=PortalUrlBuilder.xtreamPlaylist(p);if(!url.isEmpty())importRemoteM3u(url);}}})
+                .setPositiveButton("Speichern",(d,w)->{String[] a=input.getText().toString().trim().split("\\|",3); if(a.length==3){PortalProfile p=new PortalProfile(PortalProfile.Type.XTREAM,"Xtream",a[0].trim(),a[1].trim(),a[2].trim()); if(p.isValid()){getSharedPreferences("topcop_portals",MODE_PRIVATE).edit().putString("xtream_server",p.server).putString("xtream_user",p.user).putString("xtream_secret",p.secret).apply();Toast.makeText(MediaHubActivity.this,"Xtream-Profil gespeichert · Playlist wird geladen",Toast.LENGTH_SHORT).show();String url=PortalUrlBuilder.xtreamPlaylist(p);if(!url.isEmpty())importRemoteM3u(url);}else Toast.makeText(MediaHubActivity.this,"Format: Server URL | Benutzer | Passwort",Toast.LENGTH_SHORT).show();}})
                 .setNegativeButton("Abbrechen",null).show();
         }
 
