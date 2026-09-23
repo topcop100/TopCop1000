@@ -107,7 +107,7 @@ public class MediaHubActivity extends Activity {
                 if(focus==4){Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return;}
                 if(focus==5){showStalkerMenu();return;}
                 if(focus==6){showXtreamMenu();return;}
-                if(focus==7){showLiveLineFavorites();return;}
+                if(focus==7){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","livetv");startActivity(fav);return;}
             }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
             if("VIDEO".equals(mode)&&focus==0){
