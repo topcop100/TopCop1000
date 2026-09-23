@@ -16,6 +16,7 @@ import java.net.*;
 public class MediaHubActivity extends Activity {
     static final int REQ_VIDEO=20, REQ_M3U=21;
     int streamFocus=0; boolean showingPlaylist=false; String stalkerBase="",stalkerMac="",stalkerToken=""; HubView hubView;
+    final ArrayList<String> liveLines=new ArrayList<>();
     final ArrayList<String> playlistNames=new ArrayList<>(), playlistUrls=new ArrayList<>();
     public static final String EXTRA_MODE="mode";
     @Override public void onCreate(Bundle b){super.onCreate(b);hubView=new HubView();setContentView(hubView);String raw=getIntent().getStringExtra("playlist_uri");if(raw!=null&&!raw.isEmpty())parseM3u(Uri.parse(raw));String favCmd=getIntent().getStringExtra("favorite_stalker_cmd");if(favCmd!=null&&!favCmd.isEmpty())openSavedStalkerFavorite(favCmd);}
@@ -96,7 +97,11 @@ public class MediaHubActivity extends Activity {
                 Toast.makeText(MediaHubActivity.this,items[focus]+" – Modulansicht",Toast.LENGTH_SHORT).show();return;
             }
             if("LIVE LINES".equals(mode)){
-                Toast.makeText(MediaHubActivity.this,items[focus]+" – Line-Verwaltung",Toast.LENGTH_SHORT).show();return;
+                if(focus==0){showLiveLines();return;}
+                if(focus==1){addLiveLine();return;}
+                if(focus==2){editLiveLine();return;}
+                if(focus==3){deleteLiveLine();return;}
+                if(focus==4){Intent fav=new Intent(MediaHubActivity.this,FavoritesActivity.class);fav.putExtra("category","livetv");startActivity(fav);return;}
             }
             if(("LIVE TV".equals(mode)||"PORTALE".equals(mode))&&focus==0){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_M3U);return; }
             if("VIDEO".equals(mode)&&focus==0){
@@ -121,6 +126,42 @@ public class MediaHubActivity extends Activity {
             }
             Toast.makeText(MediaHubActivity.this,"Funktion nicht verfügbar",Toast.LENGTH_SHORT).show();
         }
+        void loadLiveLines(){
+            liveLines.clear();
+            String raw=getSharedPreferences("topcop_live_lines",MODE_PRIVATE).getString("lines","");
+            if(!raw.isEmpty())for(String s:raw.split("\\n"))if(!s.trim().isEmpty())liveLines.add(s.trim());
+        }
+        void saveLiveLines(){
+            StringBuilder sb=new StringBuilder();for(String s:liveLines){if(sb.length()>0)sb.append("\n");sb.append(s);}
+            getSharedPreferences("topcop_live_lines",MODE_PRIVATE).edit().putString("lines",sb.toString()).apply();
+        }
+        void showLiveLines(){
+            loadLiveLines();
+            if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Noch keine Lines gespeichert",Toast.LENGTH_SHORT).show();return;}
+            final String[] a=liveLines.toArray(new String[0]);
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("LIVE LINES").setItems(a,(d,which)->{
+                String url=a[which].trim();
+                if(url.startsWith("http://")||url.startsWith("https://")){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Line konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}}
+            }).setNegativeButton("Schließen",null).show();
+        }
+        void addLiveLine(){
+            final EditText input=new EditText(MediaHubActivity.this);input.setHint("Name | URL");
+            new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE HINZUFÜGEN").setView(input).setPositiveButton("Speichern",(d,w)->{
+                String v=input.getText().toString().trim();if(v.isEmpty())return;loadLiveLines();liveLines.add(v);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line gespeichert",Toast.LENGTH_SHORT).show();
+            }).setNegativeButton("Abbrechen",null).show();
+        }
+        void editLiveLine(){
+            loadLiveLines();if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Keine Line zum Bearbeiten",Toast.LENGTH_SHORT).show();return;}
+            final String[] a=liveLines.toArray(new String[0]);new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setItems(a,(d,which)->{
+                final EditText input=new EditText(MediaHubActivity.this);input.setText(a[which]);
+                new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setView(input).setPositiveButton("Speichern",(d2,w)->{String v=input.getText().toString().trim();if(!v.isEmpty()){liveLines.set(which,v);saveLiveLines();}}).setNegativeButton("Abbrechen",null).show();
+            }).show();
+        }
+        void deleteLiveLine(){
+            loadLiveLines();if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Keine Line zum Löschen",Toast.LENGTH_SHORT).show();return;}
+            final String[] a=liveLines.toArray(new String[0]);new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE LÖSCHEN").setItems(a,(d,which)->{liveLines.remove(which);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line gelöscht",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
+        }
+
         void askModuleSearch(){
             final EditText input=new EditText(MediaHubActivity.this);input.setHint("Suchbegriff");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle(mode+" SUCHE").setView(input)
