@@ -6,6 +6,9 @@ import android.graphics.*;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.Toast;
+import android.os.Build;
+import android.os.StatFs;
+import java.io.File;
 
 public class FilesToolsActivity extends Activity {
  public static final String EXTRA_MODE="mode";
