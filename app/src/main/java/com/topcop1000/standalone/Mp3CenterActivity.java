@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
+import android.content.SharedPreferences;
 import android.view.*;
 import android.widget.Toast;
 import java.io.IOException;
@@ -13,8 +14,11 @@ import java.io.IOException;
 public class Mp3CenterActivity extends Activity {
     static final int REQ_AUDIO=40;
     MediaPlayer player;
+    final String[] streamKeys={"mp3_stream_1","mp3_stream_2"};
     @Override public void onCreate(Bundle b){ super.onCreate(b); setContentView(new Mp3View()); }
     @Override protected void onDestroy(){ if(player!=null){player.release();player=null;} super.onDestroy(); }
+
+    void playSavedStream(int slot){ String url=getSharedPreferences("topcop",MODE_PRIVATE).getString(streamKeys[slot],""); playUrl(url); }
 
     void playUrl(String url){
         if(url==null||url.trim().isEmpty()){ Toast.makeText(this,"Noch kein Stream hinterlegt",Toast.LENGTH_SHORT).show(); return; }
@@ -56,7 +60,8 @@ public class Mp3CenterActivity extends Activity {
             else if(k==KeyEvent.KEYCODE_DPAD_UP)focus=Math.max(0,focus-1);
             else if(k==KeyEvent.KEYCODE_BACK){finish();return true;}
             else if(k==KeyEvent.KEYCODE_DPAD_CENTER||k==KeyEvent.KEYCODE_ENTER){
-                if(focus==4&&player!=null){player.stop();player.release();player=null;}
+                if(focus==0||focus==1){playSavedStream(focus);}
+                else if(focus==4&&player!=null){player.stop();player.release();player=null;}
                 else if(focus==2){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("audio/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_AUDIO); }
                 else if(focus==5)finish();
                 else Toast.makeText(Mp3CenterActivity.this,items[focus]+" vorbereitet",Toast.LENGTH_SHORT).show();
