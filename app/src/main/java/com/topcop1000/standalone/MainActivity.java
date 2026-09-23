@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
         }
 
         void drawZombies(Canvas c,int w,int h){
-            boolean idle=System.currentTimeMillis()-lastInput>7000;
+            boolean idle=prefs.getBoolean("idle",true) && System.currentTimeMillis()-lastInput>7000;
             int count=idle?4:2;
             float speed=idle?1.35f:.65f;
             float t=(((System.currentTimeMillis()-start)*speed)%24000)/24000f;
@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
             else if(key==KeyEvent.KEYCODE_DPAD_UP) move(0,-1);
             else if(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER){
                 if(focus==10) finish();
-                else if(focus==7){ zombies=!zombies; prefs.edit().putBoolean("zombies",zombies).apply(); Toast.makeText(MainActivity.this,"Zombie-Hintergrund: "+(zombies?"EIN":"AUS"),Toast.LENGTH_SHORT).show(); }
+                else if(focus==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); }
                 else openTile(focus);
             } else if(key==KeyEvent.KEYCODE_BACK){ finish(); }
             else return super.onKeyDown(key,e);
