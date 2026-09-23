@@ -140,21 +140,22 @@ public class MediaHubActivity extends Activity {
             if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Noch keine Lines gespeichert",Toast.LENGTH_SHORT).show();return;}
             final String[] a=liveLines.toArray(new String[0]);
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("LIVE LINES").setItems(a,(d,which)->{
-                String url=a[which].trim();
+                String entry=a[which].trim();int sep=entry.indexOf('|');String url=(sep>=0?entry.substring(sep+1):entry).trim();
                 if(url.startsWith("http://")||url.startsWith("https://")){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Line konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}}
+                else Toast.makeText(MediaHubActivity.this,"Line enthält keine gültige URL",Toast.LENGTH_SHORT).show();
             }).setNegativeButton("Schließen",null).show();
         }
         void addLiveLine(){
             final EditText input=new EditText(MediaHubActivity.this);input.setHint("Name | URL");
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE HINZUFÜGEN").setView(input).setPositiveButton("Speichern",(d,w)->{
-                String v=input.getText().toString().trim();if(v.isEmpty())return;loadLiveLines();liveLines.add(v);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line gespeichert",Toast.LENGTH_SHORT).show();
+                String v=input.getText().toString().trim();if(v.isEmpty())return;int sep=v.indexOf('|');String url=(sep>=0?v.substring(sep+1):v).trim();if(!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Format: Name | http(s)://...",Toast.LENGTH_SHORT).show();return;}loadLiveLines();liveLines.add(v);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line gespeichert",Toast.LENGTH_SHORT).show();
             }).setNegativeButton("Abbrechen",null).show();
         }
         void editLiveLine(){
             loadLiveLines();if(liveLines.isEmpty()){Toast.makeText(MediaHubActivity.this,"Keine Line zum Bearbeiten",Toast.LENGTH_SHORT).show();return;}
             final String[] a=liveLines.toArray(new String[0]);new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setItems(a,(d,which)->{
                 final EditText input=new EditText(MediaHubActivity.this);input.setText(a[which]);
-                new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setView(input).setPositiveButton("Speichern",(d2,w)->{String v=input.getText().toString().trim();if(!v.isEmpty()){liveLines.set(which,v);saveLiveLines();}}).setNegativeButton("Abbrechen",null).show();
+                new AlertDialog.Builder(MediaHubActivity.this).setTitle("LINE BEARBEITEN").setView(input).setPositiveButton("Speichern",(d2,w)->{String v=input.getText().toString().trim();int sep=v.indexOf('|');String url=(sep>=0?v.substring(sep+1):v).trim();if(v.isEmpty()||!(url.startsWith("http://")||url.startsWith("https://"))){Toast.makeText(MediaHubActivity.this,"Format: Name | http(s)://...",Toast.LENGTH_SHORT).show();return;}liveLines.set(which,v);saveLiveLines();Toast.makeText(MediaHubActivity.this,"Line geändert",Toast.LENGTH_SHORT).show();}).setNegativeButton("Abbrechen",null).show();
             }).show();
         }
         void deleteLiveLine(){
