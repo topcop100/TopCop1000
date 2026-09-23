@@ -71,7 +71,7 @@ public class MediaHubActivity extends Activity {
             int first=Math.max(0,Math.min(streamFocus-3,Math.max(0,playlistNames.size()-7)));
             for(int row=0;row<7&&first+row<playlistNames.size();row++){int i=first+row;float y=h*.19f+row*h*.10f;RectF r=new RectF(w*.12f,y,w*.88f,y+h*.07f);p.setColor(i==streamFocus?Color.rgb(120,10,35):Color.rgb(42,42,50));c.drawRoundRect(r,18,18,p);p.setColor(Color.WHITE);p.setTextSize(h*.027f);String s=playlistNames.get(i);if(s.length()>58)s=s.substring(0,55)+"...";c.drawText(s,r.centerX(),r.centerY()+8,p);}
         }
-        void openStream(){ if(playlistUrls.isEmpty())return; String url=playlistUrls.get(streamFocus).trim(); if("PORTALE".equals(mode)&&!stalkerToken.isEmpty()&&isStalkerCommand(url)){resolveStalkerLink(url);return;} playResolvedStream(url); }
+        void openStream(){ if(playlistUrls.isEmpty())return; String url=playlistUrls.get(streamFocus).trim(); if(("PORTALE".equals(mode)||"LIVE LINES".equals(mode))&&!stalkerToken.isEmpty()&&isStalkerCommand(url)){resolveStalkerLink(url);return;} playResolvedStream(url); }
         boolean isStalkerCommand(String value){String v=value==null?"":value.trim().toLowerCase(java.util.Locale.ROOT);return v.startsWith("ffmpeg ")||v.startsWith("auto ")||v.startsWith("ffrt ")||v.startsWith("ffmpeg://");}
         void playResolvedStream(String raw){String url=raw.trim();if(url.startsWith("ffmpeg "))url=url.substring(7).trim();int sp=url.indexOf(' ');if(sp>0&&url.substring(0,sp).indexOf("://")<0)url=url.substring(sp+1).trim();Intent v=new Intent(Intent.ACTION_VIEW,Uri.parse(url));try{startActivity(v);}catch(Exception e){Toast.makeText(MediaHubActivity.this,"Kein kompatibler Stream-Player installiert",Toast.LENGTH_SHORT).show();}}
         void resolveStalkerLink(String cmd){
@@ -319,7 +319,7 @@ public class MediaHubActivity extends Activity {
                 if(k==KeyEvent.KEYCODE_DPAD_DOWN)streamFocus=Math.min(playlistNames.size()-1,streamFocus+1);
                 else if(k==KeyEvent.KEYCODE_DPAD_UP)streamFocus=Math.max(0,streamFocus-1);
                 else if(k==KeyEvent.KEYCODE_DPAD_CENTER||k==KeyEvent.KEYCODE_ENTER)openStream();
-                else if(k==KeyEvent.KEYCODE_MENU&&!playlistUrls.isEmpty()){String url=playlistUrls.get(streamFocus).trim();String cat="PORTALE".equals(mode)?"portals":("LIVE LINES".equals(mode)?"livetv":"livetv");FavoriteStore.add(MediaHubActivity.this,cat,playlistNames.get(streamFocus)+" | "+url);Toast.makeText(MediaHubActivity.this,"Favorit gespeichert",Toast.LENGTH_SHORT).show();}
+                else if(k==KeyEvent.KEYCODE_MENU&&!playlistUrls.isEmpty()){String url=playlistUrls.get(streamFocus).trim();String cat="PORTALE".equals(mode)?"portals":"livetv";FavoriteStore.add(MediaHubActivity.this,cat,playlistNames.get(streamFocus)+" | "+url);Toast.makeText(MediaHubActivity.this,"Favorit gespeichert",Toast.LENGTH_SHORT).show();}
                 else if(k==KeyEvent.KEYCODE_BACK){showingPlaylist=false;invalidate();return true;} else return super.onKeyDown(k,e);
                 invalidate();return true;
             }
