@@ -2,6 +2,7 @@ package com.topcop1000.standalone;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.graphics.*;
 import android.os.Bundle;
 import android.view.*;
@@ -36,5 +37,5 @@ public class FilesToolsActivity extends Activity {
   void showRuntime(){String msg="Java: "+System.getProperty("java.version")+"\nVM: "+System.getProperty("java.vm.name")+"\nABI: "+java.util.Arrays.toString(Build.SUPPORTED_ABIS);new android.app.AlertDialog.Builder(FilesToolsActivity.this).setTitle("RUNTIME CENTER").setMessage(msg).setPositiveButton("OK",null).show();}
   @Override public boolean onKeyDown(int k,KeyEvent e){if(k==KeyEvent.KEYCODE_DPAD_DOWN)focus=Math.min(items.length-1,focus+1);else if(k==KeyEvent.KEYCODE_DPAD_UP)focus=Math.max(0,focus-1);else if(k==KeyEvent.KEYCODE_DPAD_CENTER||k==KeyEvent.KEYCODE_ENTER)choose();else if(k==KeyEvent.KEYCODE_BACK){finish();return true;}else return super.onKeyDown(k,e);invalidate();return true;}
  }
- @Override protected void onActivityResult(int r,int result,Intent data){super.onActivityResult(r,result,data);if((r==30||r==31||r==32)&&result==RESULT_OK&&data!=null){String what=r==32?"Portal-Datei ausgewählt":(r==31?"Download-Datei ausgewählt":"Datei ausgewählt");Toast.makeText(this,what,Toast.LENGTH_SHORT).show();}}
+ @Override protected void onActivityResult(int r,int result,Intent data){super.onActivityResult(r,result,data);if((r==30||r==31||r==32)&&result==RESULT_OK&&data!=null&&data.getData()!=null){Uri u=data.getData();if(r==32){Intent hub=new Intent(this,MediaHubActivity.class);hub.putExtra(MediaHubActivity.EXTRA_MODE,"PORTALE");hub.putExtra("playlist_uri",u.toString());startActivity(hub);return;}Intent open=new Intent(Intent.ACTION_VIEW);open.setData(u);open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);try{startActivity(open);}catch(Exception e){Toast.makeText(this,"Keine passende App zum Öffnen der Datei",Toast.LENGTH_SHORT).show();}}}
 }
