@@ -19,13 +19,18 @@ public class MainActivity extends Activity {
     final class GraveyardView extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final String[] labels={"MP3 CENTER","VIDEO","LIVE TV","PORTALE","APPS","DATEIEN","TOOLS","EINSTELLUNGEN","FAVORITEN","RESERVE","EXIT"};
+        final int[] order=new int[10];
         final int[][] grid={{0,1,2,3,4},{5,6,7,8,9}};
         int focus=0;
         boolean zombies=true;
         long start=System.currentTimeMillis(), lastInput=System.currentTimeMillis();
         final android.content.SharedPreferences prefs=getSharedPreferences("topcop",MODE_PRIVATE);
 
-        GraveyardView(){ super(MainActivity.this); zombies=prefs.getBoolean("zombies",true); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
+        GraveyardView(){ super(MainActivity.this); zombies=prefs.getBoolean("zombies",true); loadOrder(); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
+
+        void loadOrder(){String raw=prefs.getString("tile_order","0,1,2,3,4,5,6,7,8,9");String[] a=raw.split(",");boolean ok=a.length==10;boolean[] seen=new boolean[10];if(ok)try{for(int i=0;i<10;i++){order[i]=Integer.parseInt(a[i]);if(order[i]<0||order[i]>9||seen[order[i]])ok=false;else seen[order[i]]=true;}}catch(Exception e){ok=false;}if(!ok)for(int i=0;i<10;i++)order[i]=i;}
+        void saveOrder(){StringBuilder s=new StringBuilder();for(int i=0;i<10;i++){if(i>0)s.append(',');s.append(order[i]);}prefs.edit().putString("tile_order",s.toString()).apply();}
+        int tileAt(int position){return position==10?10:order[position];}
 
         @Override protected void onDraw(Canvas c){
             zombies=prefs.getBoolean("zombies",true);
@@ -74,7 +79,7 @@ public class MainActivity extends Activity {
             p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(selected?6:3);
             p.setColor(selected?Color.rgb(255,25,70):Color.rgb(100,100,112)); c.drawRoundRect(r,28,28,p);
             p.setStyle(Paint.Style.FILL); p.setTextSize(Math.max(18,h*.027f)); p.setColor(Color.WHITE);
-            c.drawText(labels[i],r.centerX(),r.centerY()+8,p);
+            c.drawText(labels[tileAt(i)],r.centerX(),r.centerY()+8,p);
             if(selected) drawBloodDrop(c,r.centerX(),r.top-20);
         }
 
@@ -113,8 +118,9 @@ public class MainActivity extends Activity {
             else if(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER){
                 if(focus==10) finish();
                 else if(focus==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); }
-                else openTile(focus);
-            } else if(key==KeyEvent.KEYCODE_BACK){ finish(); }
+                else openTile(tileAt(focus));
+            } else if(key==KeyEvent.KEYCODE_MENU && focus<10){int next=(focus+1)%10;int tmp=order[focus];order[focus]=order[next];order[next]=tmp;focus=next;saveOrder();Toast.makeText(MainActivity.this,"Kachel verschoben",Toast.LENGTH_SHORT).show();}
+            else if(key==KeyEvent.KEYCODE_BACK){ finish(); }
             else return super.onKeyDown(key,e);
             invalidate(); return true;
         }
