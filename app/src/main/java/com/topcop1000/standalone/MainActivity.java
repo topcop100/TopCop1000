@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
 
     final class GraveyardView extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        final String[] labels={"MP3 CENTER","VIDEO","LIVE TV","PORTALE","APPS","DATEIEN","TOOLS","EINSTELLUNGEN","FAVORITEN","RESERVE","EXIT"};
+        final String[] labels={"TMDB","LIVE LINES","VAVOO","MEGAKINO","MOVIE SCOUT","YOUTUBE","CUMINATION","MP3 STREAMS","SUCHE","RESERVE","EXIT"};
         final int[] order=new int[10];
         int focus=0;
         boolean editMode=false;
@@ -115,14 +115,10 @@ public class MainActivity extends Activity {
         }
 
         void openTile(int i){
-            if(i==0){ startActivity(new Intent(MainActivity.this,Mp3CenterActivity.class)); return; }
-            if(i==1||i==2||i==3){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,i==1?"VIDEO":(i==2?"LIVE TV":"PORTALE")); startActivity(x); return; }
-            if(i==4){ startActivity(new Intent(MainActivity.this,AppsActivity.class)); return; }
-            if(i==5||i==6){ Intent x=new Intent(MainActivity.this,FilesToolsActivity.class); x.putExtra(FilesToolsActivity.EXTRA_MODE,i==5?"DATEIEN":"TOOLS"); startActivity(x); return; }
-            if(i==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); return; }
-            if(i==8){ startActivity(new Intent(MainActivity.this,FavoritesActivity.class)); return; }
+            if(i==7){ startActivity(new Intent(MainActivity.this,Mp3CenterActivity.class)); return; }
+            if(i==8){ Intent x=new Intent(MainActivity.this,MediaHubActivity.class); x.putExtra(MediaHubActivity.EXTRA_MODE,"SUCHE"); startActivity(x); return; }
             if(i==9){ Toast.makeText(MainActivity.this,"RESERVE – frei für spätere Funktion",Toast.LENGTH_SHORT).show(); return; }
-            Toast.makeText(MainActivity.this,"Funktion nicht verfügbar",Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this,labels[i]+" – Modul wird nativ eingebunden",Toast.LENGTH_SHORT).show();
         }
 
         @Override public boolean onKeyDown(int key,KeyEvent e){
