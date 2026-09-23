@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
 
         void loadOrder(){String raw=prefs.getString("tile_order","0,1,2,3,4,5,6,7,8,9");String[] a=raw.split(",");boolean ok=a.length==10;boolean[] seen=new boolean[10];if(ok)try{for(int i=0;i<10;i++){order[i]=Integer.parseInt(a[i]);if(order[i]<0||order[i]>9||seen[order[i]])ok=false;else seen[order[i]]=true;}}catch(Exception e){ok=false;}if(!ok)for(int i=0;i<10;i++)order[i]=i;}
         void loadVisibility(){for(int i=0;i<10;i++)visible[i]=prefs.getBoolean("tile_visible_"+i,true);}
+        void resetTiles(){for(int i=0;i<10;i++){order[i]=i;visible[i]=true;}android.content.SharedPreferences.Editor e=prefs.edit().remove("tile_order");for(int i=0;i<10;i++)e.remove("tile_visible_"+i);e.apply();Toast.makeText(MainActivity.this,"Kacheln auf Standard zurückgesetzt",Toast.LENGTH_SHORT).show();}
         void toggleVisibility(){if(focus>=10)return;int id=tileAt(focus);if(id==9){Toast.makeText(MainActivity.this,"RESERVE bleibt als freier Platz verfügbar",Toast.LENGTH_SHORT).show();return;}visible[id]=!visible[id];prefs.edit().putBoolean("tile_visible_"+id,visible[id]).apply();Toast.makeText(MainActivity.this,visible[id]?labels[id]+" eingeblendet":labels[id]+" ausgeblendet",Toast.LENGTH_SHORT).show();}
         void saveOrder(){StringBuilder s=new StringBuilder();for(int i=0;i<10;i++){if(i>0)s.append(',');s.append(order[i]);}prefs.edit().putString("tile_order",s.toString()).apply();}
         int tileAt(int position){return position==10?10:order[position];}
@@ -137,7 +138,8 @@ public class MainActivity extends Activity {
                 else if(editMode) toggleVisibility();
                 else if(visible[tileAt(focus)]) openTile(tileAt(focus));
                 else Toast.makeText(MainActivity.this,"Kachel ist ausgeblendet · MENU zum Bearbeiten",Toast.LENGTH_SHORT).show();
-            } else if(key==KeyEvent.KEYCODE_MENU){editMode=!editMode;if(focus==10)focus=9;Toast.makeText(MainActivity.this,editMode?"BEARBEITEN: D-Pad verschiebt Kacheln":"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}
+            } else if(key==KeyEvent.KEYCODE_MENU){editMode=!editMode;if(focus==10)focus=9;Toast.makeText(MainActivity.this,editMode?"BEARBEITEN: D-Pad verschiebt · OK blendet ein/aus":"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}
+            else if(editMode && key==KeyEvent.KEYCODE_BUTTON_X){resetTiles();focus=0;}
             else if(key==KeyEvent.KEYCODE_BACK){if(editMode){editMode=false;Toast.makeText(MainActivity.this,"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}else finish(); }
             else return super.onKeyDown(key,e);
             invalidate(); return true;
