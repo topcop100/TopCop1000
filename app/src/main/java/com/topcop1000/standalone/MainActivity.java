@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
         setContentView(new GraveyardView());
     }
 
-    @Override protected void onResume(){ super.onResume(); if(getWindow().getDecorView()!=null) getWindow().getDecorView().invalidate(); }
+    @Override protected void onResume(){ super.onResume(); View v=getWindow().getDecorView().findViewById(android.R.id.content); if(v instanceof android.view.ViewGroup && ((android.view.ViewGroup)v).getChildCount()>0){View child=((android.view.ViewGroup)v).getChildAt(0);if(child instanceof GraveyardView)((GraveyardView)child).refreshPrefs();} }
 
     final class GraveyardView extends View {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
         final android.content.SharedPreferences prefs=getSharedPreferences("topcop",MODE_PRIVATE);
 
         GraveyardView(){ super(MainActivity.this); zombies=prefs.getBoolean("zombies",true); loadOrder(); loadVisibility(); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
+        void refreshPrefs(){loadOrder();loadVisibility();zombies=prefs.getBoolean("zombies",true);invalidate();}
 
         void loadOrder(){String raw=prefs.getString("tile_order","0,1,2,3,4,5,6,7,8,9");String[] a=raw.split(",");boolean ok=a.length==10;boolean[] seen=new boolean[10];if(ok)try{for(int i=0;i<10;i++){order[i]=Integer.parseInt(a[i]);if(order[i]<0||order[i]>9||seen[order[i]])ok=false;else seen[order[i]]=true;}}catch(Exception e){ok=false;}if(!ok)for(int i=0;i<10;i++)order[i]=i;}
         void loadVisibility(){for(int i=0;i<10;i++)visible[i]=prefs.getBoolean("tile_visible_"+i,true);}
