@@ -197,6 +197,8 @@ public class MediaHubActivity extends Activity {
             new AlertDialog.Builder(MediaHubActivity.this).setTitle("FAVORIT AN/AUS").setItems(a,(d,which)->{
                 String key="fav_"+a[which].hashCode();android.content.SharedPreferences sp=getSharedPreferences("topcop_live_lines",MODE_PRIVATE);
                 boolean next=!sp.getBoolean(key,false);sp.edit().putBoolean(key,next).apply();
+                String entry=a[which];int sep=entry.indexOf('|');String name=(sep>=0?entry.substring(0,sep):"LIVE LINE").trim();String url=(sep>=0?entry.substring(sep+1):entry).trim();String favValue=name+" | "+url;
+                if(next)FavoriteStore.add(MediaHubActivity.this,"livetv",favValue);else FavoriteStore.remove(MediaHubActivity.this,"livetv",favValue);
                 Toast.makeText(MediaHubActivity.this,next?"Favorit gespeichert":"Favorit entfernt",Toast.LENGTH_SHORT).show();
             }).setNegativeButton("Abbrechen",null).show();
         }
