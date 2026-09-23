@@ -20,7 +20,6 @@ public class MainActivity extends Activity {
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         final String[] labels={"MP3 CENTER","VIDEO","LIVE TV","PORTALE","APPS","DATEIEN","TOOLS","EINSTELLUNGEN","FAVORITEN","RESERVE","EXIT"};
         final int[] order=new int[10];
-        final int[][] grid={{0,1,2,3,4},{5,6,7,8,9}};
         int focus=0;
         boolean editMode=false;
         final boolean[] visible=new boolean[10];
@@ -33,7 +32,6 @@ public class MainActivity extends Activity {
 
         void loadOrder(){String raw=prefs.getString("tile_order","0,1,2,3,4,5,6,7,8,9");String[] a=raw.split(",");boolean ok=a.length==10;boolean[] seen=new boolean[10];if(ok)try{for(int i=0;i<10;i++){order[i]=Integer.parseInt(a[i]);if(order[i]<0||order[i]>9||seen[order[i]])ok=false;else seen[order[i]]=true;}}catch(Exception e){ok=false;}if(!ok)for(int i=0;i<10;i++)order[i]=i;}
         void loadVisibility(){for(int i=0;i<10;i++)visible[i]=prefs.getBoolean("tile_visible_"+i,true);}
-        void resetTiles(){for(int i=0;i<10;i++){order[i]=i;visible[i]=true;}android.content.SharedPreferences.Editor e=prefs.edit().remove("tile_order");for(int i=0;i<10;i++)e.remove("tile_visible_"+i);e.apply();Toast.makeText(MainActivity.this,"Kacheln auf Standard zurückgesetzt",Toast.LENGTH_SHORT).show();}
         void toggleVisibility(){if(focus>=10)return;int id=tileAt(focus);if(id==9){Toast.makeText(MainActivity.this,"RESERVE bleibt als freier Platz verfügbar",Toast.LENGTH_SHORT).show();return;}visible[id]=!visible[id];prefs.edit().putBoolean("tile_visible_"+id,visible[id]).apply();Toast.makeText(MainActivity.this,visible[id]?labels[id]+" eingeblendet":labels[id]+" ausgeblendet",Toast.LENGTH_SHORT).show();}
         void saveOrder(){StringBuilder s=new StringBuilder();for(int i=0;i<10;i++){if(i>0)s.append(',');s.append(order[i]);}prefs.edit().putString("tile_order",s.toString()).apply();}
         int tileAt(int position){return position==10?10:order[position];}
@@ -124,8 +122,7 @@ public class MainActivity extends Activity {
             if(i==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); return; }
             if(i==8){ startActivity(new Intent(MainActivity.this,FavoritesActivity.class)); return; }
             if(i==9){ Toast.makeText(MainActivity.this,"RESERVE – frei für spätere Funktion",Toast.LENGTH_SHORT).show(); return; }
-            String name=labels[i];
-            Toast.makeText(MainActivity.this,name+" vorbereitet",Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this,"Funktion nicht verfügbar",Toast.LENGTH_SHORT).show();
         }
 
         @Override public boolean onKeyDown(int key,KeyEvent e){
