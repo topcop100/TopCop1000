@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.graphics.*;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.*;
 import android.widget.Toast;
 import java.io.IOException;
 
 public class Mp3CenterActivity extends Activity {
+    static final int REQ_AUDIO=40;
     MediaPlayer player;
     @Override public void onCreate(Bundle b){ super.onCreate(b); setContentView(new Mp3View()); }
     @Override protected void onDestroy(){ if(player!=null){player.release();player=null;} super.onDestroy(); }
@@ -21,6 +24,21 @@ public class Mp3CenterActivity extends Activity {
             player.setOnErrorListener((m,w,e)->{Toast.makeText(this,"Stream konnte nicht gestartet werden",Toast.LENGTH_SHORT).show();return true;});
             player.prepareAsync();
         }catch(IOException e){ Toast.makeText(this,"Ungültige Audioquelle",Toast.LENGTH_SHORT).show(); }
+    }
+
+    @Override protected void onActivityResult(int req,int res,Intent data){
+        super.onActivityResult(req,res,data);
+        if(req==REQ_AUDIO&&res==RESULT_OK&&data!=null&&data.getData()!=null){
+            Uri u=data.getData();
+            try{
+                if(player!=null)player.release();
+                player=new MediaPlayer();
+                player.setDataSource(Mp3CenterActivity.this,u);
+                player.setOnPreparedListener(MediaPlayer::start);
+                player.prepareAsync();
+                Toast.makeText(this,"Lokale Musik wird geladen",Toast.LENGTH_SHORT).show();
+            }catch(Exception e){Toast.makeText(this,"Audiodatei konnte nicht geöffnet werden",Toast.LENGTH_SHORT).show();}
+        }
     }
 
     final class Mp3View extends View{
@@ -39,6 +57,7 @@ public class Mp3CenterActivity extends Activity {
             else if(k==KeyEvent.KEYCODE_BACK){finish();return true;}
             else if(k==KeyEvent.KEYCODE_DPAD_CENTER||k==KeyEvent.KEYCODE_ENTER){
                 if(focus==4&&player!=null){player.stop();player.release();player=null;}
+                else if(focus==2){ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("audio/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,REQ_AUDIO); }
                 else if(focus==5)finish();
                 else Toast.makeText(Mp3CenterActivity.this,items[focus]+" vorbereitet",Toast.LENGTH_SHORT).show();
             }else return super.onKeyDown(k,e); invalidate();return true;
