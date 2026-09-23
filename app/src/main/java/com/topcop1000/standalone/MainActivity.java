@@ -22,6 +22,7 @@ public class MainActivity extends Activity {
         final int[] order=new int[10];
         final int[][] grid={{0,1,2,3,4},{5,6,7,8,9}};
         int focus=0;
+        boolean editMode=false;
         boolean zombies=true;
         long start=System.currentTimeMillis(), lastInput=System.currentTimeMillis();
         final android.content.SharedPreferences prefs=getSharedPreferences("topcop",MODE_PRIVATE);
@@ -79,6 +80,7 @@ public class MainActivity extends Activity {
             p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(selected?6:3);
             p.setColor(selected?Color.rgb(255,25,70):Color.rgb(100,100,112)); c.drawRoundRect(r,28,28,p);
             p.setStyle(Paint.Style.FILL); p.setTextSize(Math.max(18,h*.027f)); p.setColor(Color.WHITE);
+            if(editMode&&selected){p.setColor(Color.rgb(255,190,30));c.drawText("VERSCHIEBEN",r.centerX(),r.top+24,p);p.setColor(Color.WHITE);}
             c.drawText(labels[tileAt(i)],r.centerX(),r.centerY()+8,p);
             if(selected) drawBloodDrop(c,r.centerX(),r.top-20);
         }
@@ -87,6 +89,15 @@ public class MainActivity extends Activity {
             Path d=new Path(); d.moveTo(x,y-20); d.cubicTo(x-24,y+12,x-16,y+34,x,y+34);
             d.cubicTo(x+16,y+34,x+24,y+12,x,y-20); d.close();
             p.setColor(Color.rgb(195,0,32)); c.drawPath(d,p);
+        }
+
+        void moveEdit(int dx,int dy){
+            if(focus>=10)return;
+            int target=focus;
+            int row=focus/5,col=focus%5;
+            if(dx<0&&col>0)target=focus-1; else if(dx>0&&col<4)target=focus+1;
+            else if(dy<0&&row==1)target=focus-5; else if(dy>0&&row==0)target=focus+5;
+            if(target!=focus){int tmp=order[focus];order[focus]=order[target];order[target]=tmp;focus=target;saveOrder();}
         }
 
         void move(int dx,int dy){
@@ -111,16 +122,16 @@ public class MainActivity extends Activity {
 
         @Override public boolean onKeyDown(int key,KeyEvent e){
             lastInput=System.currentTimeMillis();
-            if(key==KeyEvent.KEYCODE_DPAD_RIGHT) move(1,0);
-            else if(key==KeyEvent.KEYCODE_DPAD_LEFT) move(-1,0);
-            else if(key==KeyEvent.KEYCODE_DPAD_DOWN) move(0,1);
-            else if(key==KeyEvent.KEYCODE_DPAD_UP) move(0,-1);
+            if(key==KeyEvent.KEYCODE_DPAD_RIGHT){if(editMode)moveEdit(1,0);else move(1,0);}
+            else if(key==KeyEvent.KEYCODE_DPAD_LEFT){if(editMode)moveEdit(-1,0);else move(-1,0);}
+            else if(key==KeyEvent.KEYCODE_DPAD_DOWN){if(editMode)moveEdit(0,1);else move(0,1);}
+            else if(key==KeyEvent.KEYCODE_DPAD_UP){if(editMode)moveEdit(0,-1);else move(0,-1);}
             else if(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER){
                 if(focus==10) finish();
                 else if(focus==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); }
                 else openTile(tileAt(focus));
-            } else if(key==KeyEvent.KEYCODE_MENU && focus<10){int next=(focus+1)%10;int tmp=order[focus];order[focus]=order[next];order[next]=tmp;focus=next;saveOrder();Toast.makeText(MainActivity.this,"Kachel verschoben",Toast.LENGTH_SHORT).show();}
-            else if(key==KeyEvent.KEYCODE_BACK){ finish(); }
+            } else if(key==KeyEvent.KEYCODE_MENU){editMode=!editMode;if(focus==10)focus=9;Toast.makeText(MainActivity.this,editMode?"BEARBEITEN: D-Pad verschiebt Kacheln":"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}
+            else if(key==KeyEvent.KEYCODE_BACK){if(editMode){editMode=false;Toast.makeText(MainActivity.this,"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}else finish(); }
             else return super.onKeyDown(key,e);
             invalidate(); return true;
         }
