@@ -23,13 +23,16 @@ public class MainActivity extends Activity {
         final int[][] grid={{0,1,2,3,4},{5,6,7,8,9}};
         int focus=0;
         boolean editMode=false;
+        final boolean[] visible=new boolean[10];
         boolean zombies=true;
         long start=System.currentTimeMillis(), lastInput=System.currentTimeMillis();
         final android.content.SharedPreferences prefs=getSharedPreferences("topcop",MODE_PRIVATE);
 
-        GraveyardView(){ super(MainActivity.this); zombies=prefs.getBoolean("zombies",true); loadOrder(); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
+        GraveyardView(){ super(MainActivity.this); zombies=prefs.getBoolean("zombies",true); loadOrder(); loadVisibility(); setFocusable(true); setFocusableInTouchMode(true); requestFocus(); }
 
         void loadOrder(){String raw=prefs.getString("tile_order","0,1,2,3,4,5,6,7,8,9");String[] a=raw.split(",");boolean ok=a.length==10;boolean[] seen=new boolean[10];if(ok)try{for(int i=0;i<10;i++){order[i]=Integer.parseInt(a[i]);if(order[i]<0||order[i]>9||seen[order[i]])ok=false;else seen[order[i]]=true;}}catch(Exception e){ok=false;}if(!ok)for(int i=0;i<10;i++)order[i]=i;}
+        void loadVisibility(){for(int i=0;i<10;i++)visible[i]=prefs.getBoolean("tile_visible_"+i,true);}
+        void toggleVisibility(){if(focus>=10)return;int id=tileAt(focus);if(id==9){Toast.makeText(MainActivity.this,"RESERVE bleibt als freier Platz verfügbar",Toast.LENGTH_SHORT).show();return;}visible[id]=!visible[id];prefs.edit().putBoolean("tile_visible_"+id,visible[id]).apply();Toast.makeText(MainActivity.this,visible[id]?labels[id]+" eingeblendet":labels[id]+" ausgeblendet",Toast.LENGTH_SHORT).show();}
         void saveOrder(){StringBuilder s=new StringBuilder();for(int i=0;i<10;i++){if(i>0)s.append(',');s.append(order[i]);}prefs.edit().putString("tile_order",s.toString()).apply();}
         int tileAt(int position){return position==10?10:order[position];}
 
@@ -76,12 +79,14 @@ public class MainActivity extends Activity {
         void drawStone(Canvas c,int i,int w,int h){
             RectF r=stoneRect(i,w,h);
             boolean selected=i==focus;
-            p.setColor(selected?Color.rgb(88,12,24):Color.rgb(39,39,46)); c.drawRoundRect(r,28,28,p);
+            int tile=tileAt(i); boolean shown=i==10||visible[tile];
+            p.setColor(!shown?Color.rgb(18,18,22):(selected?Color.rgb(88,12,24):Color.rgb(39,39,46))); c.drawRoundRect(r,28,28,p);
             p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(selected?6:3);
             p.setColor(selected?Color.rgb(255,25,70):Color.rgb(100,100,112)); c.drawRoundRect(r,28,28,p);
             p.setStyle(Paint.Style.FILL); p.setTextSize(Math.max(18,h*.027f)); p.setColor(Color.WHITE);
             if(editMode&&selected){p.setColor(Color.rgb(255,190,30));c.drawText("VERSCHIEBEN",r.centerX(),r.top+24,p);p.setColor(Color.WHITE);}
-            c.drawText(labels[tileAt(i)],r.centerX(),r.centerY()+8,p);
+            c.drawText(labels[tile],r.centerX(),r.centerY()+8,p);
+            if(!shown&&i<10){p.setTextSize(Math.max(13,h*.018f));p.setColor(Color.LTGRAY);c.drawText("AUSGEBLENDET",r.centerX(),r.bottom-18,p);}
             if(selected) drawBloodDrop(c,r.centerX(),r.top-20);
         }
 
@@ -129,7 +134,9 @@ public class MainActivity extends Activity {
             else if(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER){
                 if(focus==10) finish();
                 else if(focus==7){ startActivity(new Intent(MainActivity.this,SettingsActivity.class)); }
-                else openTile(tileAt(focus));
+                else if(editMode) toggleVisibility();
+                else if(visible[tileAt(focus)]) openTile(tileAt(focus));
+                else Toast.makeText(MainActivity.this,"Kachel ist ausgeblendet · MENU zum Bearbeiten",Toast.LENGTH_SHORT).show();
             } else if(key==KeyEvent.KEYCODE_MENU){editMode=!editMode;if(focus==10)focus=9;Toast.makeText(MainActivity.this,editMode?"BEARBEITEN: D-Pad verschiebt Kacheln":"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}
             else if(key==KeyEvent.KEYCODE_BACK){if(editMode){editMode=false;Toast.makeText(MainActivity.this,"Bearbeitungsmodus beendet",Toast.LENGTH_SHORT).show();}else finish(); }
             else return super.onKeyDown(key,e);
