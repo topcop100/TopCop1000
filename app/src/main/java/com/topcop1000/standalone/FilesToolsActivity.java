@@ -25,7 +25,12 @@ public class FilesToolsActivity extends Activity {
    if(focus==items.length-1){finish();return;}
    if("DATEIEN".equals(mode)){
     if(focus==0){pick(30,"*/*");return;}
-    if(focus==1){pick(31,"*/*");return;}
+    if(focus==1){
+     Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);
+     if(android.os.Build.VERSION.SDK_INT>=26)i.putExtra("android.provider.extra.INITIAL_URI",Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADownload"));
+     try{startActivityForResult(i,31);}catch(Exception e){Toast.makeText(FilesToolsActivity.this,"Downloads konnten nicht geöffnet werden",Toast.LENGTH_SHORT).show();}
+     return;
+    }
     if(focus==2){pick(32,"text/*");return;}
    }
    if(focus==0){showDiagnosis();return;}
